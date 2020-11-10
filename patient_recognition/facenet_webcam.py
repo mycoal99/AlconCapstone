@@ -42,27 +42,27 @@ class FaceDetector(object):
                 updated = False
                 if len(self.states) != 0:
                     for state in self.states:
-                        print("2")
+                        # print("2")
                         if (((math.isclose(state[0][0], ld[0][0], abs_tol=50)) and (math.isclose(state[0][1], ld[0][1], abs_tol=50)))  or ((math.isclose(state[1][0], ld[1][0], abs_tol=50)) and (math.isclose(state[1][1], ld[1][1], abs_tol=50)))) and (x == state[4]):
                             state[0] = ld[0]
                             state[1] = ld[1]
                             state[3] += 1
                             state[2] = ((state[2] * (state[3]-1)) + prob) / state[3]
                             updated = True
-                            print("6")
+                            # print("6")
                         else:
-                            print("7")
+                            # print("7")
                             continue
                 else:
-                    print("3")
+                    # print("3")
                     self.states.append([ld[0], ld[1], prob, 1, x])
                     updated = True
 
                 if updated:
-                    print("4")
+                    # print("4")
                     pass
                 else:
-                    print("5")
+                    # print("5")
                     self.states.append([ld[0], ld[1], prob, 1, x])
 
         except:
@@ -112,5 +112,9 @@ class FaceDetector(object):
 mtcnn = MTCNN()
 fcd = FaceDetector(mtcnn)
 fcd.run()
+maxActive = fcd.states[0]
 for state in fcd.states:
-    print(state)
+    if state[3] > maxActive[3]:
+        if state[2] > 0.98:
+            maxActive = state
+print(maxActive)
