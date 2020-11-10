@@ -2,6 +2,7 @@ import cv2
 import torch
 import numpy as np
 from facenet_pytorch import MTCNN
+import math
 
 class FaceDetector(object):
     """
@@ -10,9 +11,10 @@ class FaceDetector(object):
 
     def __init__(self, mtcnn):
         self.mtcnn = mtcnn
-        self.states = [list] 
+        # State [LeftEye[x,y], RightEye[x,y], Probability, FramesActive, Orientation]
+        self.states = [] 
 
-    def _draw(self, frame, boxes, probs, landmarks, i):
+    def _draw(self, frame, boxes, probs, landmarks, x):
         """
         Draw landmarks and boxes for each face detected
         """
@@ -37,8 +39,32 @@ class FaceDetector(object):
                 cv2.circle(frame, tuple(ld[4]), 5, (0, 0, 255), -1)
 
                 # Save Frame State
-                while (i < 5):
-                    self.states.append([ld[0], ld[1], prob])
+                updated = False
+                if len(self.states) != 0:
+                    for state in self.states:
+                        print("2")
+                        if (((math.isclose(state[0][0], ld[0][0], abs_tol=50)) and (math.isclose(state[0][1], ld[0][1], abs_tol=50)))  or ((math.isclose(state[1][0], ld[1][0], abs_tol=50)) and (math.isclose(state[1][1], ld[1][1], abs_tol=50)))) and (x == state[4]):
+                            state[0] = ld[0]
+                            state[1] = ld[1]
+                            state[3] += 1
+                            state[2] = ((state[2] * (state[3]-1)) + prob) / state[3]
+                            updated = True
+                            print("6")
+                        else:
+                            print("7")
+                            continue
+                else:
+                    print("3")
+                    self.states.append([ld[0], ld[1], prob, 1, x])
+                    updated = True
+
+                if updated:
+                    print("4")
+                    pass
+                else:
+                    print("5")
+                    self.states.append([ld[0], ld[1], prob, 1, x])
+
         except:
             pass
 
@@ -49,23 +75,31 @@ class FaceDetector(object):
             Run the FaceDetector and draw landmarks and boxes around detected faces
         """
         cap = cv2.VideoCapture(0)
-
         i = 0
         while True:
             ret, frame = cap.read()
-            try:
-                # detect face box, probability and landmarks
-                boxes, probs, landmarks = self.mtcnn.detect(frame, landmarks=True)
-                # draw on frame
-                self._draw(frame, boxes, probs, landmarks, i)
-                i += 1
+            for x in range(4): 
+                if x == 0:
+                    pass
+                elif x == 1:
+                    frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
+                elif x == 2:
+                    frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
+                elif x == 3:
+                    frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
+                try:
+                    # detect face box, probability and landmarks
+                    boxes, probs, landmarks = self.mtcnn.detect(frame, landmarks=True)
+                    # draw on frame
+                    self._draw(frame, boxes, probs, landmarks, x)
+                    i += 1
 
-            except:
-                pass
+                except:
+                    pass
 
             # Show the frame
+            frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
             cv2.imshow('Face Detection', frame)
-            
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -78,5 +112,5 @@ class FaceDetector(object):
 mtcnn = MTCNN()
 fcd = FaceDetector(mtcnn)
 fcd.run()
-
-print(fcd.states)
+for state in fcd.states:
+    print(state)
