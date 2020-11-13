@@ -124,8 +124,10 @@ fcd = FaceDetector(mtcnn)
 # Usage: fcd.run(videoSource (default 0 which is internal camera),
 # debugging (default to True which means display boxes))
 # videoSource = "rtsp://admin:qdEJv96DYtbd@192.168.1.30" for Ryan's ReolinkWebCam
+# videoSource = "rtsp://<username>:<password>@<staticIP>" for Michael's ReolinkWebCam
+# videoSource = "rtsp://<username>:<password>@<staticIP>" for Brent's ReolinkWebCam
 # debugging = False for no video display, runs for 100 frames, True for video and box display.
-fcd.run()
+fcd.run(videoSource=0, debugging=True)
 maxActive = fcd.states[0]
 for state in fcd.states:
     if state[3] > maxActive[3]:
