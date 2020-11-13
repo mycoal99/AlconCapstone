@@ -3,6 +3,7 @@ import torch
 import numpy as np
 from facenet_pytorch import MTCNN
 import math
+import vlc
 
 class FaceDetector(object):
     """
@@ -14,29 +15,30 @@ class FaceDetector(object):
         # State [LeftEye[x,y], RightEye[x,y], Probability, FramesActive, Orientation]
         self.states = [] 
 
-    def _draw(self, frame, boxes, probs, landmarks, x):
+    def _draw(self, frame, boxes, probs, landmarks, x, debugging):
         """
         Draw landmarks and boxes for each face detected
         """
         try:
             for box, prob, ld in zip(boxes, probs, landmarks):
-                # Draw rectangle on frame
-                cv2.rectangle(frame,
-                              (box[0], box[1]),
-                              (box[2], box[3]),
-                              (0, 0, 255),
-                              thickness=2)
+                if debugging:
+                    # Draw rectangle on frame
+                    cv2.rectangle(frame,
+                                (box[0], box[1]),
+                                (box[2], box[3]),
+                                (0, 0, 255),
+                                thickness=2)
 
-                # Show probability
-                cv2.putText(frame, str(
-                    prob), (box[2], box[3]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                    # Show probability
+                    cv2.putText(frame, str(
+                        prob), (box[2], box[3]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
-                # Draw landmarks
-                cv2.circle(frame, tuple(ld[0]), 5, (0, 0, 255), -1)
-                cv2.circle(frame, tuple(ld[1]), 5, (0, 0, 255), -1)
-                cv2.circle(frame, tuple(ld[2]), 5, (0, 0, 255), -1)
-                cv2.circle(frame, tuple(ld[3]), 5, (0, 0, 255), -1)
-                cv2.circle(frame, tuple(ld[4]), 5, (0, 0, 255), -1)
+                    # Draw landmarks
+                    cv2.circle(frame, tuple(ld[0]), 5, (0, 0, 255), -1)
+                    cv2.circle(frame, tuple(ld[1]), 5, (0, 0, 255), -1)
+                    cv2.circle(frame, tuple(ld[2]), 5, (0, 0, 255), -1)
+                    cv2.circle(frame, tuple(ld[3]), 5, (0, 0, 255), -1)
+                    cv2.circle(frame, tuple(ld[4]), 5, (0, 0, 255), -1)
 
                 # Save Frame State
                 updated = False
@@ -70,11 +72,11 @@ class FaceDetector(object):
 
         return frame
 
-    def run(self):
+    def run(self, videoSource=0, debugging=True):
         """
             Run the FaceDetector and draw landmarks and boxes around detected faces
         """
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(videoSource)
         i = 0
         while True:
             ret, frame = cap.read()
@@ -91,15 +93,20 @@ class FaceDetector(object):
                     # detect face box, probability and landmarks
                     boxes, probs, landmarks = self.mtcnn.detect(frame, landmarks=True)
                     # draw on frame
-                    self._draw(frame, boxes, probs, landmarks, x)
+                    self._draw(frame, boxes, probs, landmarks, x, debugging)
                     i += 1
 
                 except:
                     pass
 
             # Show the frame
-            frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
-            cv2.imshow('Face Detection', frame)
+            if debugging:
+                frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
+                cv2.imshow('Face Detection', frame)
+            else:
+                if i > 100:
+                    break
+                
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -109,8 +116,15 @@ class FaceDetector(object):
         
         
 # Run the app
+# instance = vlc.Instance()
+# videoPlayer = instance.media_player_new("rtsp://192.168.1.30:554")
+# videoPlayer.play()
 mtcnn = MTCNN()
 fcd = FaceDetector(mtcnn)
+# Usage: fcd.run(videoSource (default 0 which is internal camera),
+# debugging (default to True which means display boxes))
+# videoSource = "rtsp://admin:qdEJv96DYtbd@192.168.1.30" for Ryan's ReolinkWebCam
+# debugging = False for no video display, runs for 100 frames, True for video and box display.
 fcd.run()
 maxActive = fcd.states[0]
 for state in fcd.states:
