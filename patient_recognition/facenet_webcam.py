@@ -9,6 +9,13 @@ class FaceDetector(object):
     """
     Face detector class
     """
+# "rtsp://admin:qdEJv96DYtbd@192.168.1.30" for Ryan's ReolinkWebCam
+# videoSource = "rtsp://<username>:<password>@<staticIP>" for Michael's ReolinkWebCam
+# videoSource = "rtsp://<username>:<password>@<staticIP>
+    videoSources = {"native" : 0,
+                    "redding" : "rtsp://admin:qdEJv96DYtbd@192.168.1.30",
+                    "iv" : "rtsp://admin:sharkboyseth@192.168.0.23",
+                    "sj" : "rtsp://admin:<password>@<staticIP>"}
 
     def __init__(self, mtcnn):
         self.mtcnn = mtcnn
@@ -104,7 +111,7 @@ class FaceDetector(object):
                 frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
                 cv2.imshow('Face Detection', frame)
             else:
-                if i > 100:
+                if i > 400:
                     break
                 
 
@@ -113,24 +120,20 @@ class FaceDetector(object):
 
         cap.release()
         cv2.destroyAllWindows()
-        
-        
-# Run the app
-# instance = vlc.Instance()
-# videoPlayer = instance.media_player_new("rtsp://192.168.1.30:554")
-# videoPlayer.play()
-mtcnn = MTCNN()
-fcd = FaceDetector(mtcnn)
-# Usage: fcd.run(videoSource (default 0 which is internal camera),
-# debugging (default to True which means display boxes))
-# videoSource = "rtsp://admin:qdEJv96DYtbd@192.168.1.30" for Ryan's ReolinkWebCam
-# videoSource = "rtsp://<username>:<password>@<staticIP>" for Michael's ReolinkWebCam
-# videoSource = "rtsp://<username>:<password>@<staticIP>" for Brent's ReolinkWebCam
-# debugging = False for no video display, runs for 100 frames, True for video and box display.
-fcd.run(videoSource=0, debugging=True)
-maxActive = fcd.states[0]
-for state in fcd.states:
-    if state[3] > maxActive[3]:
-        if state[2] > 0.98:
-            maxActive = state
-print(maxActive)
+
+    # Usage: fcd.start(videoSource (default videoSources["native"] which is internal camera),
+    # debugging (default to False which means no display boxes))
+    # videoSource = videoSources["redding"] for Ryan's ReolinkWebCam
+    # videoSource = videoSources["iv"] for Michael's ReolinkWebCam
+    # videoSource = videoSources["sj"] for Brent's ReolinkWebCam
+    # debugging = False (default) for no video display, runs for 100 frames, True for video and box display.
+    def start(self, videoSource=videoSources["native"], debugging=False):
+        self.run(videoSource, debugging)
+        maxActive = self.states[0]
+        for state in self.states:
+            if state[3] > maxActive[3]:
+                if state[2] > 0.98:
+                    maxActive = state
+        return maxActive
+               
+# print(fcd.start())
