@@ -57,6 +57,15 @@ class FaceDetector(object):
                             state[1] = ld[1]
                             state[3] += 1
                             state[2] = ((state[2] * (state[3]-1)) + prob) / state[3]
+                            rise = (state[1][1] - state[0][1])
+                            run = (state[1][0] - state[0][0])
+                            if run != 0:
+                                state[5] = math.degrees(math.atan( rise / run )) + (90 * state[4])
+                            else:
+                                if rise > 0:
+                                    state[5] = math.degrees(math.pi / 2) + (90 * state[4])
+                                else:
+                                    state[5] = math.degrees((3 * math.pi) / 2) + (90 * state[4])
                             updated = True
                             # print("6")
                         else:
@@ -64,7 +73,16 @@ class FaceDetector(object):
                             continue
                 else:
                     # print("3")
-                    self.states.append([ld[0], ld[1], prob, 1, x])
+                    rise = (ld[1][1] - ld[0][1])
+                    run = (ld[1][0] - ld[0][0])
+                    if run != 0:
+                        theta = math.atan( rise / run )
+                    else:
+                        if rise > 0:
+                            theta = math.pi / 2
+                        else:
+                            theta = (3 * math.pi) / 2
+                    self.states.append([ld[0], ld[1], prob, 1, x, math.degrees(theta) + (90 * x)])
                     updated = True
 
                 if updated:
@@ -72,7 +90,16 @@ class FaceDetector(object):
                     pass
                 else:
                     # print("5")
-                    self.states.append([ld[0], ld[1], prob, 1, x])
+                    rise = (ld[1][1] - ld[0][1])
+                    run = (ld[1][0] - ld[0][0])
+                    if run != 0:
+                        theta = math.atan( rise / run )
+                    else:
+                        if rise > 0:
+                            theta = math.pi / 2
+                        else:
+                            theta = (3 * math.pi) / 2
+                    self.states.append([ld[0], ld[1], prob, 1, x, math.degrees(theta) + (90 * x)])
 
         except:
             pass
