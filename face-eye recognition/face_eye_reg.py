@@ -1,10 +1,13 @@
 import numpy as np
 import cv2
+from facenet_webcam import FaceDetector
+from facenet_webcam import MTCNN
+import sys
 
 # multiple cascades: https://github.com/Itseez/opencv/tree/master/data/haarcascades
 var = input("Enter right(r) or left(l) eye: ")
 while(var != 'r' and var != 'l'):
-    var = lower(var)
+    var = var.lower()
     if(var == "right"):
         var = 'r'
     elif(var == "left"):
@@ -19,7 +22,6 @@ face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 #https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_eye.xml
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
-
 
 print("cascade", cv2.__version__)
 
@@ -81,16 +83,13 @@ try:
         cv2.imshow('img',resized_cropped)
         # videoWriter.write(resized_cropped)
 
-        
-
         k = cv2.waitKey(30) & 0xff
         if k == 27:
             break
 
-    
-
     cap.release()
     videoWriter.release()
     cv2.destroyAllWindows()
+
 except OSError:
     print(OSError)
