@@ -11,6 +11,7 @@ mtcnn = MTCNN()
 fd = FaceDetector(mtcnn)
 # change 0 to args[0] or pass in video streamer
 videoSource = fd.videoSources["native"] #NEED TO CHANGE
+#patient = fd.start(videoSource, True) #debugging
 patient = fd.start(videoSource)
 print(patient)
 #save coordinates of patient's eyes
@@ -29,7 +30,7 @@ height, width, channels = img.shape
 videoWriter = cv2.VideoWriter('outpy.avi', cv2.VideoWriter_fourcc('X','V','I','D'), 10, (width,height))
 
 #display patient with boxes around eyes
-sizeOfBox = 50/(eyes[0][0]/eyes[0][1])
+sizeOfBox = (eyes[1][0] - eyes[0][0])/5
 print(sizeOfBox)
 sizeOfBox = int(sizeOfBox)
 print(sizeOfBox)
@@ -43,13 +44,13 @@ while i < 30:
     #draw box around right eye and add text 'Right'
     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 0, 255), thickness=2)
     font = cv2.FONT_HERSHEY_SIMPLEX 
-    cv2.putText(boxed_img, 'Right', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
+    cv2.putText(boxed_img, 'R', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
 
     pt1 = (int(eyes[1][0] - sizeOfBox), int(eyes[1][1] - sizeOfBox))
     pt2 = (int(eyes[1][0] + sizeOfBox) , int(eyes[1][1] + sizeOfBox))
     #draw box around left eye and add text 'Left'
     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 0, 255), thickness=2)
-    cv2.putText(boxed_img,  'Left', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
+    cv2.putText(boxed_img,  'L', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
 
     cv2.imshow('Patient Eyes', boxed_img)
     cv2.waitKey(30)
@@ -108,6 +109,7 @@ try:
         resized_cropped = np.asarray([])
         cropped = img[y1:y2, x1:x2]
 
+        #zoom into eye until in specified range
         if(size > 30):
             #print(x, y)
             y1 = y - size
@@ -117,6 +119,7 @@ try:
             size -= 1
             # if(size > 40):
 
+        #detecting iris/pupil to recenter image
         elif(size == 30):
             #img = cropped
             gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
@@ -155,6 +158,7 @@ try:
                 #cv2.imwrite('after.png',img[y1:y2, x1:x2])
 
         else:
+            #zoom into eye until iris makes up entire eye
             if(size > d):
                 y1 += 1
                 y2 -= 1
@@ -175,7 +179,6 @@ try:
 
         k = cv2.waitKey(30) & 0xff
         
-    #cv2.imwrite('final_image.png',resized_cropped)
     cap.release()
     videoWriter.release()
     cv2.destroyAllWindows()
