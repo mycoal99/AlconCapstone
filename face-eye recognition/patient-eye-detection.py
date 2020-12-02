@@ -64,18 +64,6 @@ while(var != 'r' and var != 'l'):
     else:
         var = input("Enter right(r) or left(l) eye: ")
 
-# #Once eye is selected, draw a green box with green text around the selected eye
-# if(var == 'l'):
-#     eye = patient[1]
-#     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 255, 0), thickness=2)
-#     cv2.putText(boxed_img, 'Left', (pt1[0], pt1[1] + 100), font, 1, (0, 255, 0), 2, cv2.LINE_4) 
-    
-# else:
-#     pt1 = (int(eyes[0][0] - 35), int(eyes[0][1] - 35))
-#     pt2 = (int(eyes[0][0] + 35) , int(eyes[0][1] + 35))
-#     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 255, 0), thickness=2)
-#     cv2.putText(boxed_img, 'Right', (pt1[0], pt1[1] + 100), font, 1, (0, 255, 0), 2, cv2.LINE_4) 
-
 #display patient with boxes around eyes
 i = 0
 while i < 30:
