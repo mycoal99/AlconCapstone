@@ -30,10 +30,10 @@ height, width, channels = img.shape
 videoWriter = cv2.VideoWriter('outpy.avi', cv2.VideoWriter_fourcc('X','V','I','D'), 10, (width,height))
 
 #display patient with boxes around eyes
-sizeOfBox = (eyes[1][0] - eyes[0][0])/5
+sizeOfBox = int((eyes[1][0] - eyes[0][0])/5)
 print(sizeOfBox)
-sizeOfBox = int(sizeOfBox)
-print(sizeOfBox)
+fontSize = .5
+print(fontSize)
 i = 0
 while i < 30:
     ret, img = cap.read()
@@ -44,13 +44,13 @@ while i < 30:
     #draw box around right eye and add text 'Right'
     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 0, 255), thickness=2)
     font = cv2.FONT_HERSHEY_SIMPLEX 
-    cv2.putText(boxed_img, 'R', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
+    cv2.putText(boxed_img, 'Right', (pt1[0],  pt2[1] + sizeOfBox), font, fontSize, (0, 0, 255), 2, cv2.LINE_4)
 
     pt1 = (int(eyes[1][0] - sizeOfBox), int(eyes[1][1] - sizeOfBox))
     pt2 = (int(eyes[1][0] + sizeOfBox) , int(eyes[1][1] + sizeOfBox))
     #draw box around left eye and add text 'Left'
     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 0, 255), thickness=2)
-    cv2.putText(boxed_img,  'L', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
+    cv2.putText(boxed_img,  'Left', (pt1[0],  pt2[1] + sizeOfBox), font, fontSize, (0, 0, 255), 2, cv2.LINE_4)
 
     cv2.imwrite('Boxed_Eyes.png', boxed_img)
     cv2.imshow('Patient Eyes', boxed_img)
@@ -79,13 +79,13 @@ while i < 30:
     if(var == 'l'):
         eye = patient[1]
         cv2.rectangle(boxed_img, pt1, pt2, color=(0, 255, 0), thickness=2)
-        cv2.putText(boxed_img, 'Left', (pt1[0], pt1[1] + 100), font, 1, (0, 255, 0), 2, cv2.LINE_4) 
+        cv2.putText(boxed_img, 'Left', (pt1[0], pt2[1] + sizeOfBox), font, fontSize, (0, 255, 0), 2, cv2.LINE_4) 
         
     else:
         pt1 = (int(eyes[0][0] - sizeOfBox), int(eyes[0][1] - sizeOfBox))
         pt2 = (int(eyes[0][0] + sizeOfBox) , int(eyes[0][1] + sizeOfBox))
         cv2.rectangle(boxed_img, pt1, pt2, color=(0, 255, 0), thickness=2)
-        cv2.putText(boxed_img, 'Right', (pt1[0], pt1[1] + 100), font, 1, (0, 255, 0), 2, cv2.LINE_4) 
+        cv2.putText(boxed_img, 'Right', (pt1[0], pt2[1] + sizeOfBox), font, fontSize, (0, 255, 0), 2, cv2.LINE_4) 
 
     cv2.imshow('Patient Eyes', boxed_img)
     cv2.waitKey(30)
