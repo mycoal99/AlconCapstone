@@ -22,7 +22,7 @@ face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 #start video to detect eye and zoom into setup possible
-cap = cv2.VideoCapture(0) 
+cap = cv2.VideoCapture(videoSource) 
 ret, img = cap.read()
 height, width, channels = img.shape
 
@@ -99,7 +99,7 @@ while i < 30:
 
 cv2.destroyAllWindows()
 cap.release()
-cap = cv2.VideoCapture(0) 
+cap = cv2.VideoCapture(videoSource) 
 
 size = 100
 y = int(eye[1])
