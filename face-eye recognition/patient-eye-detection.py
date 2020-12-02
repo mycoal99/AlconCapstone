@@ -29,20 +29,24 @@ height, width, channels = img.shape
 videoWriter = cv2.VideoWriter('outpy.avi', cv2.VideoWriter_fourcc('X','V','I','D'), 10, (width,height))
 
 #display patient with boxes around eyes
+sizeOfBox = 50/(eyes[0][0]/eyes[0][1])
+print(sizeOfBox)
+sizeOfBox = int(sizeOfBox)
+print(sizeOfBox)
 i = 0
 while i < 30:
     ret, img = cap.read()
     boxed_img = img
     #drawing red boxes around the patients eyes
-    pt1 = (int(eyes[0][0] - 35), int(eyes[0][1] - 35))
-    pt2 = (int(eyes[0][0] + 35) , int(eyes[0][1] + 35))
+    pt1 = (int(eyes[0][0] - sizeOfBox), int(eyes[0][1] - sizeOfBox))
+    pt2 = (int(eyes[0][0] + sizeOfBox) , int(eyes[0][1] + sizeOfBox))
     #draw box around right eye and add text 'Right'
     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 0, 255), thickness=2)
     font = cv2.FONT_HERSHEY_SIMPLEX 
     cv2.putText(boxed_img, 'Right', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
 
-    pt1 = (int(eyes[1][0] - 35), int(eyes[1][1] - 35))
-    pt2 = (int(eyes[1][0] + 35) , int(eyes[1][1] + 35))
+    pt1 = (int(eyes[1][0] - sizeOfBox), int(eyes[1][1] - sizeOfBox))
+    pt2 = (int(eyes[1][0] + sizeOfBox) , int(eyes[1][1] + sizeOfBox))
     #draw box around left eye and add text 'Left'
     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 0, 255), thickness=2)
     cv2.putText(boxed_img,  'Left', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
@@ -76,8 +80,8 @@ while i < 30:
         cv2.putText(boxed_img, 'Left', (pt1[0], pt1[1] + 100), font, 1, (0, 255, 0), 2, cv2.LINE_4) 
         
     else:
-        pt1 = (int(eyes[0][0] - 35), int(eyes[0][1] - 35))
-        pt2 = (int(eyes[0][0] + 35) , int(eyes[0][1] + 35))
+        pt1 = (int(eyes[0][0] - sizeOfBox), int(eyes[0][1] - sizeOfBox))
+        pt2 = (int(eyes[0][0] + sizeOfBox) , int(eyes[0][1] + sizeOfBox))
         cv2.rectangle(boxed_img, pt1, pt2, color=(0, 255, 0), thickness=2)
         cv2.putText(boxed_img, 'Right', (pt1[0], pt1[1] + 100), font, 1, (0, 255, 0), 2, cv2.LINE_4) 
 
@@ -89,6 +93,7 @@ cv2.destroyAllWindows()
 cap.release()
 cap = cv2.VideoCapture(videoSource) 
 
+#size of overall frame, maybe based on width bewteen eyes
 size = 100
 y = int(eye[1])
 x = int(eye[0])
@@ -104,7 +109,7 @@ try:
         cropped = img[y1:y2, x1:x2]
 
         if(size > 30):
-            print(x, y)
+            #print(x, y)
             y1 = y - size
             y2 = y + size
             x1 = x - size
@@ -126,7 +131,7 @@ try:
             
                 for pt in detected_circles[0, :]:
                     a, b, r = pt[0], pt[1], pt[2] 
-                    print(a, b, r)
+                    #print(a, b, r)
                     # Draw the circumference of the circle. 
                     #size = 2*r
                     cv2.circle(cropped, (a, b), r, (0, 255, 0), 2)
@@ -136,8 +141,8 @@ try:
 
                 h, w, c = cropped.shape
                 d = 2*r #diameter
-                print(a, b)
-                print(h,w)
+                # print(a, b)
+                # print(h,w)
                 #cv2.imwrite('before.png',img[y1:y2, x1:x2])
 
                 move_y = b - int(w/2)
@@ -146,7 +151,7 @@ try:
                 y2 += move_y
                 x1 += move_x
                 x2 += move_x
-                print(y1,y2,x1,x2)
+                #print(y1,y2,x1,x2)
                 #cv2.imwrite('after.png',img[y1:y2, x1:x2])
 
         else:
