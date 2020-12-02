@@ -52,6 +52,7 @@ while i < 30:
     cv2.rectangle(boxed_img, pt1, pt2, color=(0, 0, 255), thickness=2)
     cv2.putText(boxed_img,  'L', (pt1[0],  pt1[1] + 100), font, 1, (0, 0, 255), 2, cv2.LINE_4)
 
+    cv2.imwrite('Boxed_Eyes.png', boxed_img)
     cv2.imshow('Patient Eyes', boxed_img)
     cv2.waitKey(30)
     i += 1
