@@ -3,7 +3,6 @@ import torch
 import numpy as np
 from facenet_pytorch import MTCNN
 import math
-import vlc
 
 class FaceDetector(object):
     """
@@ -138,7 +137,7 @@ class FaceDetector(object):
                 frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
                 cv2.imshow('Face Detection', frame)
             else:
-                if i > 400:
+                if i > 100:
                     break
                 
 
