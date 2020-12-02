@@ -6,6 +6,15 @@ from facenet_webcam import MTCNN
 import sys
 import string
 
+var = input("Enter right(r) or left(l) eye: ")
+while(var != 'r' and var != 'l'):
+    if(var == "right"):
+        var = 'r'
+    elif(var == "left"):
+        var = 'l'
+    else:
+        var = input("Enter right(r) or left(l) eye: ")
+
 #run Patient detection
 mtcnn = MTCNN()
 fd = FaceDetector(mtcnn)
@@ -16,6 +25,7 @@ patient = fd.start(videoSource)
 print(patient)
 #save coordinates of patient's eyes
 eyes = [patient[0], patient[1]]
+eye = patient[0]
 
 #https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_frontalface_default.xml
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -66,16 +76,15 @@ while i < 30:
 
 cv2.destroyAllWindows()
 
-# prompting user to input r or l to select eye
-eye = patient[0]
-var = input("Enter right(r) or left(l) eye: ")
-while(var != 'r' and var != 'l'):
-    if(var == "right"):
-        var = 'r'
-    elif(var == "left"):
-        var = 'l'
-    else:
-        var = input("Enter right(r) or left(l) eye: ")
+# # prompting user to input r or l to select eye
+# var = input("Enter right(r) or left(l) eye: ")
+# while(var != 'r' and var != 'l'):
+#     if(var == "right"):
+#         var = 'r'
+#     elif(var == "left"):
+#         var = 'l'
+#     else:
+#         var = input("Enter right(r) or left(l) eye: ")
 
 #display patient with boxes around eyes
 i = 0
@@ -124,7 +133,7 @@ try:
         cropped = img[y1:y2, x1:x2]
 
         #zoom into eye until in specified range
-        if(size > 30):
+        if(size > sizeOfBox):
             #print(x, y)
             y1 = y - size
             y2 = y + size
@@ -134,7 +143,7 @@ try:
             # if(size > 40):
 
         #detecting iris/pupil to recenter image
-        elif(size == 30):
+        elif(size == sizeOfBox):
             #img = cropped
             gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
             gray_blurred = cv2.blur(gray, (3, 3)) 
@@ -148,7 +157,7 @@ try:
             
                 for pt in detected_circles[0, :]:
                     a, b, r = pt[0], pt[1], pt[2] 
-                    #print(a, b, r)
+                    print(a, b, r)
                     # Draw the circumference of the circle. 
                     #size = 2*r
                     cv2.circle(cropped, (a, b), r, (0, 255, 0), 2)
@@ -173,7 +182,7 @@ try:
 
         else:
             #zoom into eye until iris makes up entire eye
-            if(size > d):
+            if(size > r):
                 y1 += 1
                 y2 -= 1
                 x1 += 1
