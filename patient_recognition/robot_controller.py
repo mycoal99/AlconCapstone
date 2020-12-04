@@ -59,24 +59,38 @@ def orientRobotFinish(robot = 0, patientInfo = 0):
     patientOrientation = patientInfo[5]
     robot.rotate(patientOrientation)
 
-def moveCloser(robot = 0, left = False, patientInfo = 0):
+def moveCloser(robot = 0, left = False, patientInfo = 0, videoSource = 0):
     if (left):
         goalx = patientInfo[0][0]
         goaly = patientInfo[0][1]
     else:
         goalx = patientInfo[1][0]
         goaly = patientInfo[1][1]
-    robotx = robot.getX()
-    roboty = robot.getY()
-    while ( (robotx != goalx) and (roboty != goaly) ):
-        if robotx < goalx:
-            robot.right()
-        elif robotx > goalx:
-            robot.left()
-        if roboty < goaly:
-            robot.up()
-        elif roboty > goaly:
-            robot.down()
+    # while ( (not math.isclose(robot.getX(), goalx, abs_tol=45)) and (not math.isclose(robot.getY(), goaly, abs_tol=45)) ):
+    while robot.getX() < goalx:
+        robot.right()
+        robot.update(videoSource)
+        if (math.isclose(robot.getX(), goalx, abs_tol=45)):
+            robot.stop()
+            break
+    while robot.getX() > goalx:
+        robot.left()
+        robot.update(videoSource)
+        if (math.isclose(robot.getX(), goalx, abs_tol=45)):
+            robot.stop()
+            break
+    while robot.getY() < goaly:
+        robot.up()
+        robot.update(videoSource)
+        if (math.isclose(robot.getY(), goaly, abs_tol=45)):
+            robot.stop()
+            break
+    while robot.getY() > goaly:
+        robot.down()
+        robot.update(videoSource)
+        if (math.isclose(robot.getY(), goaly, abs_tol=45)):
+            robot.stop()
+            break
 
     return True
 
@@ -92,6 +106,15 @@ class Robot(object):
     # def __init__(x,y):
     #     self.__xCoordinate = x
     #     self.__yCoordinate = y
+
+    def update(self, videoSource = 0):
+        cap = cv2.VideoCapture(videoSource)
+        ret, frame = cap.read()
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        qrCode = pyzbar.decode(gray)
+        cap.release()
+        self.setX((qrCode[0].polygon[2].x + qrCode[0].polygon[0].x) / 2)
+        self.setY((qrCode[0].polygon[2].y + qrCode[0].polygon[0].y) / 2)
 
     def setX(self, x):
         self.__xCoordinate = x
@@ -113,6 +136,8 @@ class Robot(object):
         print("MOVE ROBOT UP")
     def down(self):
         print("MOVE ROBOT DOWN")
+    def stop(self):
+        print("STOP ROBOT")
     
     def rotate(self, theta):
         print("Rotating {0} degrees".format(theta))
@@ -129,9 +154,10 @@ class Robot(object):
 if __name__ == "__main__":
     mtcnn = MTCNN()
     fd = FaceDetector(mtcnn)
-    patient = fd.start(fd.videoSources[sys.argv[1]], False)
+    patient = fd.start(fd.videoSources[sys.argv[1]], True)
     robot = Robot()
-    orientRobotSetup(robot, fd.videoSources[sys.argv[1]])
+    # orientRobotSetup(robot, fd.videoSources[sys.argv[1]])
+    # moveCloser(robot, True, patient, fd.videoSources[sys.argv[1]])
     print(robot.getX())
     print(robot.getY())
     print(patient)
