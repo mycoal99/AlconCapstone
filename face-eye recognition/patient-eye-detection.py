@@ -40,7 +40,8 @@ height, width, channels = img.shape
 videoWriter = cv2.VideoWriter('outpy.avi', cv2.VideoWriter_fourcc('X','V','I','D'), 10, (width,height))
 
 #display patient with boxes around eyes
-sizeOfBox = int((eyes[1][0] - eyes[0][0])/4)
+distance = math.sqrt(((eyes[1][0] - eyes[0][0])**2) + ((eyes[1][1] - eyes[0][1])**2))
+sizeOfBox = int(distance/4)
 print(sizeOfBox)
 fontSize = .5
 print(fontSize)
