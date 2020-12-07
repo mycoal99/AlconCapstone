@@ -105,7 +105,7 @@ class FaceDetector(object):
 
         return frame
 
-    def run(self, videoSource=0, debugging=True):
+    def run(self, videoSource, debugging, framesActive):
         """
             Run the FaceDetector and draw landmarks and boxes around detected faces
         """
@@ -135,9 +135,9 @@ class FaceDetector(object):
             # Show the frame
             if debugging:
                 frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
-                cv2.imshow('Face Detection', frame)
+                cv2.imshow('Patient Detection', frame)
             else:
-                if i > 100:
+                if i > framesActive:
                     break
                 
 
@@ -153,13 +153,16 @@ class FaceDetector(object):
     # videoSource = videoSources["iv"] for Michael's ReolinkWebCam
     # videoSource = videoSources["sj"] for Brent's ReolinkWebCam
     # debugging = False (default) for no video display, runs for 100 frames, True for video and box display.
-    def start(self, videoSource=videoSources["native"], debugging=False):
-        self.run(videoSource, debugging)
+    def start(self, videoSource=videoSources["native"], debugging=False, framesActive=10):
+        self.run(videoSource, debugging, framesActive)
         maxActive = self.states[0]
         for state in self.states:
             if state[3] > maxActive[3]:
                 if state[2] > 0.98:
                     maxActive = state
         return maxActive
-               
-# print(fcd.start())
+
+if __name__ == "__main__":
+    mtcnn = MTCNN()
+    fd = FaceDetector(mtcnn)
+    print(fd.start())
