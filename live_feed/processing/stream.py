@@ -1,39 +1,84 @@
 import cv2
-import numpy as np
-import os
 import requests
+import json
+import time
+import keyboard
+
+class Streamer:
 
 # STREAM_LINK = 'rtsp://admin:sharkboyseth@192.168.0.23:554//h264Preview_01_main'
 # cap = cv2.VideoCapture(STREAM_LINK)
 # cap.open(STREAM_LINK)
 
 # ret, frame = cap.read()
+
 # Static IP address for Michael's Reolink camera
-URL = 'http://192.168.0.23'
+	def __init__(self):
+		self.URL = '"http://192.168.0.23"'
+		self.host = '"192.168.0.23"'
 
-cred = "[" + '{"cmd" : "Login","action" : 0,"param" : {"User":{"userName":"admin","password":"sharkboyseth"}' + "}" + "}]"
+		self.cred = "[" + '{"cmd" : "Login","action" : 0,"param" : {"User":{"userName":"admin","password":"sharkboyseth"}' + "}" + "}]"
 
-head = {
-	"Host": "192.168.0.23",
-	"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:82.0) Gecko/20100101 Firefox/82.0",
-	"Accept": "*/*",
-	"Accept-Language": "en-US,en;q=0.5",
-	"Accept-Encoding": "gzip, deflate",
-	"Content-Type": "application/json",
-	"X-Requested-With": "XMLHttpRequest",
-	"Content-Length": "76",
-	"Origin": "http://192.168.0.23",
-	"Connection": "keep-alive",
-	"Referer": "http://192.168.0.23/"
-}
+		self.left = "[" + '{"cmd":"PtzCtrl","action":0,"param":{"channel":0,"op":"left","speed":1}' + '}]'
+		self.right = "[" + '{"cmd":"PtzCtrl","action":0,"param":{"channel":0,"op":"right","speed":1}' + '}]'
+		self.stop = "[" + '{"cmd":"PtzCtrl","action":0,"param":{"channel":0,"op":"Stop"}' + '}]'
+		self.getZoomFocus = "[" + '{"cmd":"GetZoomFocus","action":0,"param":{"channel":0,"op":"Stop"}' + '}]'
 
-with requests.Session() as s:
-	p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=f3d221d744421dd',cred, headers = head)
-	print(p.content)
+		self.head = {
+			"Host": self.host,
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:82.0) Gecko/20100101 Firefox/82.0",
+			"Accept": "*/*",
+			"Accept-Language": "en-US,en;q=0.5",
+			"Accept-Encoding": "gzip, deflate",
+			"Content-Type": "application/json",
+			"X-Requested-With": "XMLHttpRequest",
+			"Content-Length": "76",
+			"Origin": self.URL,
+			"Connection": "keep-alive",
+			"Referer": self.URL
+		}
+		with requests.Session() as self.s:
+			self.p = self.s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=f3d221d744421dd', data = self.cred, headers = self.head)
+			self.json = self.p.json()
+			self.Token = self.json[0]['value']['Token']['name']
 
-	params= '{"cmd":"PtzCtrl","action":0,"param":{"channel":0,"op":"Right","speed":32}' + "}"
-	ptzControl =  "curl 'http://192.168.0.23/cgi-bin/api.cgi?cmd=PtzCtrl&token=d9ea658668682d3' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:82.0) Gecko/20100101 Firefox/82.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Content-Type: application/json' -H 'X-Requested-With: XMLHttpRequest' -H 'Origin: http://192.168.0.23' -H 'Connection: keep-alive' -H 'Referer: http://192.168.0.23/' --data-raw '"+ '[' + (params) + ']' + "'"
-	os.system(ptzControl)
+	def userSession(self):
+		with requests.Session() as s:
+			p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=f3d221d744421dd', data = self.cred, headers = self.head)
+			json = p.json()
+			Token = json[0]['value']['Token']['name']
+			while True:
+				if keyboard.is_pressed('r'):  # if key 'q' is pressed 
+					p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + Token, data = self.right, headers = self.head)
+					time.sleep(2)
+					p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + Token, data = self.stop, headers = self.head)
+					p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + Token, data = self.getZoomFocus, headers = self.head)
+				elif keyboard.is_pressed('l'):
+					p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + Token, data = self.left, headers = self.head)
+					time.sleep(2)
+					p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + Token, data = self.stop, headers = self.head)
+					p = s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + Token, data = self.getZoomFocus, headers = self.head)
+				elif keyboard.is_pressed('q'):
+					break
+
+	def setRight(self,time):
+		self.p = self.s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + self.Token, data = self.right, headers = self.head)
+		time.sleep(time)
+		self.p = self.s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + self.Token, data = self.stop, headers = self.head)
+		self.p = self.s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + self.Token, data = self.getZoomFocus, headers = self.head)					
+
+	def setLeft(self,time):
+		self.p = self.s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + self.Token, data = self.left, headers = self.head)
+		time.sleep(time)
+		self.p = self.s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + self.Token, data = self.stop, headers = self.head)
+		self.p = self.s.post('http://192.168.0.23/cgi-bin/api.cgi?cmd=Login&token=' + self.Token, data = self.getZoomFocus, headers = self.head)					
+
+
+stream = Streamer()
+print(stream.URL)
+stream.setLeft()
+stream.setRight()
+
 
 # Poll indefinitely for actions
 # while True:
