@@ -5,7 +5,7 @@ import os
 import imageio
 
 if __name__ == "__main__":
-    write_to = "C:\\Users\\Michael\\Desktop\\video\\demo2.mp4"
+    write_to = "C:\\Users\\Michael\\Desktop\\video\\EyeDetectionDemo.mp4"
     image_folder = 'C:\\Users\\Michael\\Desktop\\video'
     writer = imageio.get_writer(write_to, format='mp4', mode='I', fps=2)
     images = [img for img in os.listdir(image_folder) if (img.endswith('.png') and img.startswith("EyeDectection"))]
