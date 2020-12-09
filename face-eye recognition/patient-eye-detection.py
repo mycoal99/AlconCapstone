@@ -22,7 +22,7 @@ fd = FaceDetector(mtcnn)
 videoSource = fd.videoSources["native"] #NEED TO CHANGE
 #patient = fd.start(videoSource, True) #debugging
 patient = fd.start(videoSource)
-path = "video/"
+path = "C:\\Users\\Michael\\Desktop\\video\\"
 print(patient)
 #save coordinates of patient's eyes
 eyes = [patient[0], patient[1]]
