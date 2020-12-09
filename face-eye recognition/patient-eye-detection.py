@@ -22,6 +22,7 @@ fd = FaceDetector(mtcnn)
 videoSource = fd.videoSources["native"] #NEED TO CHANGE
 #patient = fd.start(videoSource, True) #debugging
 patient = fd.start(videoSource)
+path = "video/"
 print(patient)
 #save coordinates of patient's eyes
 eyes = [patient[0], patient[1]]
@@ -45,6 +46,7 @@ sizeOfBox = int(distance/4)
 print(sizeOfBox)
 fontSize = .5
 print(fontSize)
+numPhoto = 0
 i = 0
 while i < 30:
     ret, img = cap.read()
@@ -70,10 +72,12 @@ while i < 30:
     else:
         cv2.putText(boxed_img, 'L', (pt1[0],  pt2[1] + sizeOfBox), font, fontSize/2, (0, 0, 255), 2, cv2.LINE_4)
 
-    cv2.imwrite('Boxed_Eyes.png', boxed_img)
+    name = path + "EyeDectection-" + str(numPhoto) + ".png"
+    cv2.imwrite(name, boxed_img)
     cv2.imshow('Patient Eyes', boxed_img)
     cv2.waitKey(30)
     i += 1
+    numPhoto += 1
 
 cv2.destroyAllWindows()
 
@@ -110,8 +114,12 @@ while i < 30:
         else:
             cv2.putText(boxed_img, 'R', (pt1[0], pt2[1] + sizeOfBox), font, fontSize/2, (0, 255, 0), 2, cv2.LINE_4) 
 
+
+    name = path + "EyeDectection-" + str(numPhoto) + ".png"
+    cv2.imwrite(name, boxed_img)
     cv2.imshow('Patient Eyes', boxed_img)
     cv2.waitKey(30)
+    numPhoto += 1
     i += 1
 
 cv2.destroyAllWindows()
@@ -199,6 +207,9 @@ try:
         if not all(resized_cropped.shape):
             resized_cropped = img
 
+        name = path + "EyeDectection-" + str(numPhoto) + ".png"
+        cv2.imwrite(name, resized_cropped)
+        numPhoto += 1
         cv2.imshow('Surgical Camera View',resized_cropped)
 
         k = cv2.waitKey(30) & 0xff
