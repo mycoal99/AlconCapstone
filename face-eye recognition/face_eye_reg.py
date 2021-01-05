@@ -1,7 +1,19 @@
 import numpy as np
 import cv2
+from facenet_webcam import FaceDetector
+from facenet_webcam import MTCNN
+import sys
 
 # multiple cascades: https://github.com/Itseez/opencv/tree/master/data/haarcascades
+var = input("Enter right(r) or left(l) eye: ")
+while(var != 'r' and var != 'l'):
+    var = var.lower()
+    if(var == "right"):
+        var = 'r'
+    elif(var == "left"):
+        var = 'l'
+    else:
+        var = input("Enter right(r) or left(l) eye: ")
 
 #https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_frontalface_default.xml
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
@@ -10,7 +22,6 @@ face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 #https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_eye.xml
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
-
 
 print("cascade", cv2.__version__)
 
@@ -35,38 +46,50 @@ try:
             roi_color = img[y:y+h, x:x+w]
             
             eyes = eye_cascade.detectMultiScale(roi_gray)
+            print("eyes:\n", eyes)
 
-            for (ex,ey,ew,eh) in eyes:
-                if ex <= x and ey <= y and ew <= w and eh <= h:
-                    cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
+            if(len(eyes) > 1):
+                index = 0
+                if(eyes[0][0] < eyes[1][0]):
+                    right = 0
+                else:
+                    right = 1
 
-                    print(ex, ew, ey, eh, "LENGTH")
+                for (ex,ey,ew,eh) in eyes:
+                    print("ex:",ex, "ey:",ey,"ew:",ew,"eh",eh)
+                    if ex <= x and ey <= y and ew <= w and eh <= h:
 
+                        if(index == right and var == 'r'):
+                            cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,255),2)
+                            print(ex, ew, ey, eh, "LENGTH")
+                            cropped = img[y +ey: y + ey + eh, x + ex: x + ex + ew]
+                            print("CROPED:", cropped.shape)
+                        if (index != right and var == 'l'):
+                            cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(255,255,0),2)
+                            print(ex, ew, ey, eh, "LENGTH")
+                            cropped = img[y +ey: y + ey + eh, x + ex: x + ex + ew]
+                            print("CROPED:", cropped.shape)
+                        
+                        try:
+                            resized_cropped = cv2.resize(cropped, (width, height))
+                            print("RESIZED:", resized_cropped.shape)
+                        except:
+                            pass
 
-                    cropped = img[y +ey: y + ey + eh, x + ex: x + ex + ew]
-                    print("CROPED:", cropped.shape)
-                    
-                    try:
-                        resized_cropped = cv2.resize(cropped, (width, height))
-                        print("RESIZED:", resized_cropped.shape)
-                    except:
-                        pass
+                    index += 1
 
         if not all(resized_cropped.shape):
             resized_cropped = img
         cv2.imshow('img',resized_cropped)
         # videoWriter.write(resized_cropped)
 
-        
-
         k = cv2.waitKey(30) & 0xff
         if k == 27:
             break
 
-    
-
     cap.release()
     videoWriter.release()
     cv2.destroyAllWindows()
+
 except OSError:
     print(OSError)
