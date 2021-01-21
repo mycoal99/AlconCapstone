@@ -18,6 +18,7 @@ VIDEO_SOURCE = 0
 SET_UP_COMPLETE = False
 EYELASHES_THRESHOLD = 80
 USE_MULTIPROCESSOR = False
+FINAL_IRIS_SIZE = 30 #TODO
 
 #begin live stream
 cap = cv2.VideoCapture(VIDEO_SOURCE) 
@@ -43,12 +44,19 @@ try:
             for cnt in contours:
                 (a, b, w, h) = cv2.boundingRect(cnt)
                 cv2.circle(img, (a + int(w/2), b + int(h/2)), int((h)/3), (255, 0, 255), 2)
-                r = int((h)/3)
             
                 if(len(contours) == 1):
                     #set pupil in center of camera
                     #API call- move (north, south, east, west), wait, stop
-                    print(a,b,r)
+                    if(a > int(w/2)):
+                        print("move right")
+                    if(a < int(w/2)):
+                        print("move left")
+                    
+                    if(b > int(h/2)):
+                        print("move forward")
+                    if(b < int(h/2)):
+                        print("move backward")    
 
         #Iris detection
         #play around with param1 and param2
@@ -67,11 +75,11 @@ try:
                 cv2.circle(img, (a, b), 1, (0, 0, 255), 3)
                 #API call- move (up and down), wait, stop
 
-                '''
+                if(r < FINAL_IRIS_SIZE):
+                    print("move down")
+
                 if r >= FINAL_IRIS_SIZE:
                     SET_UP_COMPLETE = true
-                '''
-
 
         #move robot to closer to eye
         cv2.imshow('Surgical Camera View', img)
@@ -79,7 +87,6 @@ try:
         
     cap.release()
     cv2.destroyAllWindows()
-
 
 except OSError:
     print(OSError)
