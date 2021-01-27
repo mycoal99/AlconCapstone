@@ -29,6 +29,7 @@ def moveRobotToEye(robot=0, videoSource=0):
     cap = cv2.VideoCapture(VIDEO_SOURCE) 
     ret, img = cap.read()
     height, width, channels = img.shape
+    counter = 0
 
     try:
         while not SET_UP_COMPLETE:
@@ -95,13 +96,14 @@ def moveRobotToEye(robot=0, videoSource=0):
                     cv2.circle(img, (a, b), 1, (0, 0, 255), 3)
                     #API call- move (up and down), wait, stop
 
-                    if(r < FINAL_IRIS_SIZE):
+                    if(r < FINAL_IRIS_SIZE and counter < 5):
                         print("move down")
                         robot.down()
                         time.sleep(2)
                         robot.stop()
+                        counter += 1
 
-                    if r >= FINAL_IRIS_SIZE:
+                    if (r >= FINAL_IRIS_SIZE or counter >= 5):
                         SET_UP_COMPLETE = true
 
             #move robot to closer to eye
