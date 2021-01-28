@@ -192,7 +192,7 @@ def moveRobotToPatient(robot=0, left=False, patient=0, videoSource=0):
 def getPatient():
     mtcnn = MTCNN()
     fd = FaceDetector(mtcnn)
-    return fd.start(fd.videoSources["native"], False)
+    return fd.start(1, False)
 
 class Robot(object):
 

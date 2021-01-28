@@ -15,7 +15,7 @@ class Gui(Widget):
     def start(self, button):
         if (button.text == "Start"):
             robot = Robot()
-            moveRobotToPatient(robot, True, getPatient(), 0)
+            moveRobotToPatient(robot, True, getPatient(), 1)
             button.text = "Stop"
         elif (button.text == "Stop"):
             robot.initial()
