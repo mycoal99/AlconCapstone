@@ -108,7 +108,7 @@ def moveRobotToEye(robot=0, videoSource=0):
 
             #move robot to closer to eye
             cv2.imshow('Surgical Camera View', img)
-            k = cv2.waitKey(30) & 0xff
+            k = cv2.waitKey(1) & 0xff
             
         cap.release()
         cv2.destroyAllWindows()
