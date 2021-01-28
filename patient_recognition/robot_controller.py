@@ -4,7 +4,6 @@ import os, sys
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
-import zbar
 from pyzbar import pyzbar
 import math
 import cv2
@@ -245,13 +244,10 @@ class Robot(object):
     def down(self):
         self.__controller.sendRobotCommand(self.__controller.commands["down"])
     def stop(self):
-<<<<<<< HEAD
         __controller.sendRobotCommand(__controller.commands["stop"])
     def initial(self):
         __controller.sendRobotCommand(__controller.commands["initial"])
-=======
-        self.__controller.sendRobotCommand(self.__controller.commands["stop"])
->>>>>>> 092a2b68e5ec62af25f6c0e01bd843e68fa180d2
+
 
     
     def rotate(self, theta):
