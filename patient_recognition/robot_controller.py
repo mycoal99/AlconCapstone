@@ -92,11 +92,11 @@ def moveRobotToPatient(robot=0, left=False, patient=0, videoSource=0):
     robot.updateCoords(videoSource)
     # Get coordinates of patient's correct eye
     if (left):
-        eyeX = patientInfo[0][0]
-        eyeY = patientInfo[0][1]
+        eyeX = patient[0][0]
+        eyeY = patient[0][1]
     else:
-        eyeX = patientInfo[1][0]
-        eyeY = patientInfo[1][1]
+        eyeX = patient[1][0]
+        eyeY = patient[1][1]
 
     # Calculate the distance between the robot and the eye
     # Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
@@ -196,18 +196,18 @@ def getPatient():
 
 class Robot(object):
 
-    __xCoordinate = 0
-    __yCoordinate = 0
-    __controller = CapstoneClient()
+    # __xCoordinate = 0
+    # __yCoordinate = 0
+    # __controller = CapstoneClient()
 
     def __init__(self):
-        __xCoordinate = 0
-        __yCoordinate = 0
-        __controller = CapstoneClient()
-        __controller.start()
-        __controller.sendRobotCommand(__controller.commands["initial"])
+        self.__xCoordinate = 0
+        self.__yCoordinate = 0
+        self.__controller = CapstoneClient()
+        self.__controller.start()
+        self.__controller.sendRobotCommand(self.__controller.commands["initial"])
 
-    def updateCoords(videoSource):
+    def updateCoords(self, videoSource):
         cap = cv2.VideoCapture(videoSource)
         ret, frame = cap.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -233,21 +233,25 @@ class Robot(object):
         return self.__yCoordinate
 
     def right(self):
-        __controller.sendRobotCommand(__controller.commands["right"])
+        self.__controller.sendRobotCommand(self.__controller.commands["right"])
     def left(self):
-        __controller.sendRobotCommand(__controller.commands["left"])
+        self.__controller.sendRobotCommand(self.__controller.commands["left"])
     def forward(self):
-        __controller.sendRobotCommand(__controller.commands["forward"])
+        self.__controller.sendRobotCommand(self.__controller.commands["forward"])
     def backward(self):
-        __controller.sendRobotCommand(__controller.commands["backward"])
+        self.__controller.sendRobotCommand(self.__controller.commands["backward"])
     def up(self):
-        __controller.sendRobotCommand(__controller.commands["up"])
+        self.__controller.sendRobotCommand(self.__controller.commands["up"])
     def down(self):
-        __controller.sendRobotCommand(__controller.commands["down"])
+        self.__controller.sendRobotCommand(self.__controller.commands["down"])
     def stop(self):
+<<<<<<< HEAD
         __controller.sendRobotCommand(__controller.commands["stop"])
     def initial(self):
         __controller.sendRobotCommand(__controller.commands["initial"])
+=======
+        self.__controller.sendRobotCommand(self.__controller.commands["stop"])
+>>>>>>> 092a2b68e5ec62af25f6c0e01bd843e68fa180d2
 
     
     def rotate(self, theta):
