@@ -1,0 +1,50 @@
+#:kivy 1.0.9
+<Gui>:
+    video: surgery_video
+    GridLayout:
+        cols: 2
+        rows: 2
+        orientation: "rl-tb"
+        size_hint: 1, 1
+        size: root.size
+        pos: 0,0
+        GridLayout:
+            cols: 2
+            rows: 4
+            size_hint_x: 0.33
+            size_hint_y: 0.15
+            Label:
+                id: nameLabel
+                text: "Name:"
+            Label:
+                id: patientName
+                text: "Michael Who"
+            Label:
+                id: surgeryTypeLabel
+                text: "Surgery Type:"
+            Label:
+                id: surgeryType
+                text: "CatorActs"
+            Label:
+                id: surgicalEyeLabel
+                text: "Surgical Eye:"
+            Label:
+                id: surgicalEye
+                text: "Left"
+            Label:
+                id: label7
+                text: "Label7"
+            Label:
+                id: label8
+                text: "Label8"
+        Camera:
+            id: surgery_video
+        Button:
+            id: start_button
+            text: "Start"
+            size_hint_x: 0.33
+            size_hint_y: 0.05
+            on_press: root.start(self)
+
+
+

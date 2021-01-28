@@ -189,6 +189,10 @@ def moveRobotToPatient(robot=0, left=False, patient=0, videoSource=0):
     distanceToEye = newDistanceToEye
     return False
 
+def getPatient():
+    mtcnn = MTCNN()
+    fd = FaceDetector(mtcnn)
+    return fd.start(fd.videoSources["native"], False)
 
 class Robot(object):
 
@@ -242,6 +246,8 @@ class Robot(object):
         __controller.sendRobotCommand(__controller.commands["down"])
     def stop(self):
         __controller.sendRobotCommand(__controller.commands["stop"])
+    def initial(self):
+        __controller.sendRobotCommand(__controller.commands["initial"])
 
     
     def rotate(self, theta):
@@ -261,7 +267,7 @@ if __name__ == "__main__":
     fd = FaceDetector(mtcnn)
     patient = fd.start(fd.videoSources[sys.argv[1]], False)
     robot = Robot()
-    moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=fd.videoSources[sys.argv[1]])
+    print(moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=fd.videoSources[sys.argv[1]]))
     print(robot.getX())
     print(robot.getY())
     print(patient)
