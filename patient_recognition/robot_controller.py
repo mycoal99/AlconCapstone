@@ -91,11 +91,11 @@ def moveRobotToPatient(robot=0, left=False, patient=0, videoSource=0):
     robot.updateCoords(videoSource)
     # Get coordinates of patient's correct eye
     if (left):
-        eyeX = patient[0][0]
-        eyeY = patient[0][1]
-    else:
         eyeX = patient[1][0]
         eyeY = patient[1][1]
+    else:
+        eyeX = patient[0][0]
+        eyeY = patient[0][1]
 
     # Calculate the distance between the robot and the eye
     # Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
@@ -191,7 +191,35 @@ def moveRobotToPatient(robot=0, left=False, patient=0, videoSource=0):
 def getPatient():
     mtcnn = MTCNN()
     fd = FaceDetector(mtcnn)
-    return fd.start(1, False)
+    cap = cv2.VideoCapture(1)
+    ret, frame = cap.read()
+    maxImageHeight = frame.shape[0]
+    maxImageWidth = frame.shape[1]
+    cap.release()
+    patient = fd.start(1, True)
+    orientation = patient[4]
+    if orientation == 0:
+        pass
+    elif orientation == 1:
+        tempy1 = patient[0][1]
+        tempy2 = patient[1][1]
+        patient[0][1] = maxImageHeight - patient[0][0]
+        patient[0][0] = tempy1
+        patient[1][1] = maxImageHeight - patient[1][0]
+        patient[1][0] = tempy2
+    elif orientation == 2:
+        patient[0][0] = maxImageWidth - patient[0][0]
+        patient[0][1] = maxImageHeight - patient[0][1]
+        patient[1][0] = maxImageWidth - patient[1][0]
+        patient[1][1] = maxImageHeight - patient[1][1]
+    elif orientation == 3:
+        tempx1 = patient[0][0]
+        tempx2 = patient[1][0]
+        patient[0][0] = maxImageWidth - patient[0][1]
+        patient[0][1] = tempx1
+        patient[1][0] = maxImageWidth - patient[1][1]
+        patient[1][1] = tempx2
+    return patient
 
 class Robot(object):
 
@@ -208,9 +236,12 @@ class Robot(object):
 
     def updateCoords(self, videoSource):
         cap = cv2.VideoCapture(videoSource)
-        ret, frame = cap.read()
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        qrCode = pyzbar.decode(gray)
+        qrCode = []
+        qrCode[0] = None
+        while (qrCode[0] == None):
+            ret, frame = cap.read()
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            qrCode = pyzbar.decode(gray)
         cap.release()
 
         (topLeft,topRight,bottomRight,bottomLeft) = qrCode[0].polygon
@@ -268,6 +299,6 @@ if __name__ == "__main__":
     patient = fd.start(fd.videoSources[sys.argv[1]], False)
     robot = Robot()
     print(moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=fd.videoSources[sys.argv[1]]))
-    print(robot.getX())
-    print(robot.getY())
-    print(patient)
+    # print(robot.getX())
+    # print(robot.getY())
+    # print(getPatient())

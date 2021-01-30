@@ -1,49 +1,66 @@
-#:kivy 1.0.9
+#:kivy 2.0.0
 <Gui>:
-    video: surgery_video
-    GridLayout:
-        cols: 2
-        rows: 2
-        orientation: "rl-tb"
-        size_hint: 1, 1
+    MDGridLayout:
         size: root.size
-        pos: 0,0
-        GridLayout:
-            cols: 2
-            rows: 4
-            size_hint_x: 0.33
-            size_hint_y: 0.15
-            Label:
-                id: patientNameLabel
-                text: "Name:"
-            Label:
-                id: patientName
-                text: "Michael Who"
-            Label:
+        rows: 2
+        cols: 2
+        orientation: "rl-tb"
+        MDCard:
+            padding: "8sp"
+            size_hint: 0.5,0.5
+            orientation: "vertical"
+            MDCard:
+                padding: "8sp"
+                MDLabel:
+                    font_style: "H4"
+                    id: patientNameLabel
+                    text: "Name:"
+                MDLabel:
+                    font_style: "H4"
+                    id: patientName
+                    text: "Michael Who"
+            MDSeparator:
+                height: "2sp"
+            MDLabel:
+                font_style: "H4"
                 id: surgeryTypeLabel
                 text: "Surgery Type:"
-            Label:
+            MDLabel:
+                font_style: "H4"
                 id: surgeryType
                 text: "CatorActs"
-            Label:
+            MDSeparator:
+                height: "2sp"
+            MDLabel:
+                font_style: "H4"
                 id: surgicalEyeLabel
                 text: "Surgical Eye:"
-            Label:
+            MDLabel:
+                font_style: "H4"
                 id: surgicalEye
                 text: "Left"
-            # Label:
+            # MDLabel:
             #     id: label7
             #     text: "Label7"
-            # Label:
+            # MDLabel:
             #     id: label8
             #     text: "Label8"
         Camera:
             id: surgery_video
-        Button:
-            id: start_button
-            text: "Start"
+            # index: 0
+            allow_stretch: True
+        MDGridLayout:
             size_hint_x: 0.33
             size_hint_y: 0.05
+        MDFillRoundFlatIconButton:
+            id: start_button
+            text: "Start"
+            icon: "play"
+            size: self.parent.width / 4, self.parent.height / 4
+            size_hint_y: 0.05
+            font_style: "H4"
+            text_color: app.theme_cls.accent_color
+            md_bg_color: app.theme_cls.primary_color
             on_press: root.start(self)
 
 
