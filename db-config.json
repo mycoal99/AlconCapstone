@@ -1,0 +1,14 @@
+{
+    "database-local-path": "biometrics_database/",
+    "database-name": "patient.db",
+    "database-model": [
+        "patient_id", 
+        "firstname", 
+        "lastname", 
+        "DOB", 
+        "left_eye_template", 
+        "right_eye_template", 
+        "surgery"
+    ],
+    "eye-template-folder-name":"diagnostics"
+}
