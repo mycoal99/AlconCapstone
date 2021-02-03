@@ -287,9 +287,9 @@ class Robot(object):
     def down(self):
         self.__controller.sendRobotCommand(self.__controller.commands["down"])
     def stop(self):
-        __controller.sendRobotCommand(__controller.commands["stop"])
+        self.__controller.sendRobotCommand(self.__controller.commands["stop"])
     def initial(self):
-        __controller.sendRobotCommand(__controller.commands["initial"])
+        self.__controller.sendRobotCommand(self.__controller.commands["initial"])
 
 
     
