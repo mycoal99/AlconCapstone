@@ -1,7 +1,10 @@
 import os
+import sys
+import argparse
 import sqlite3
 from patient import Patient
 import json
+from typing import List
 
 
 ### SET UP DATABASE PATH-----------------------------------------------------------
@@ -44,6 +47,11 @@ if not cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='
 
 connect.close()
 
+
+### ------------------------------------------------------------------------------------
+###                 SUPPORTED FUNCTIONS
+### ------------------------------------------------------------------------------------
+
 def add_patient(firstname:str, lastname:str, DOB:str, left_eye_template, right_eye_template, surgery:str):
     '''
         Input:
@@ -56,10 +64,11 @@ def add_patient(firstname:str, lastname:str, DOB:str, left_eye_template, right_e
             void
 
     '''
-
-    patient = Patient(None, firstname, lastname, DOB, left_eye_template, right_eye_template, surgery)
-    insert_new_patient(patient)
-
+    try:
+        patient = Patient(None, firstname, lastname, DOB, left_eye_template, right_eye_template, surgery)
+        insert_new_patient(patient)
+    except:
+        print("[EXCEPTION] The order of fields are: firstname, lastname, date of birth, left_eye_template, right_eye_template, surgery")
 def insert_new_patient(patient:Patient):
     '''
         Input:
@@ -124,7 +133,7 @@ def remove_patient_by_lastname(lastname:str):
     connect.close()
 
 
-def get_patient_by_id(id:str):
+def get_patient_by_id(id:int):
     '''
     Returns a list of patients by id.
         Input:
@@ -137,7 +146,7 @@ def get_patient_by_id(id:str):
     cur = connect.cursor()
     patient_list = []
     with connect:
-        cur.execute("SELECT * FROM patients WHERE id=:id", {'id':id}).fetchall()
+        patient_list = cur.execute("SELECT * FROM patients WHERE id=:id", {'id':id}).fetchall()
     connect.close()
     return json_format(patient_list)
 
@@ -232,9 +241,12 @@ def get_patient_by_surgery(surgery:str):
             jsonfile: list of patients found in json format
 
     '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
     patient_list = []
     with connect:
         patient_list = cur.execute("SELECT * FROM patients WHERE surgery=:surgery", {'surgery':surgery}).fetchall()
+    connect.close()
     return json_format(patient_list)
 
 def get_patient_count():
@@ -308,6 +320,66 @@ def json_format(patients):
         jsonfile.append(entry)
     return json.dumps(jsonfile, indent=4)
     
+### ------------------------------------------------------------------------------------
+###                 CONSOLE
+### ------------------------------------------------------------------------------------
+if __name__=="__main__":
+    print("MAIN")
+    parser = argparse.ArgumentParser(description='List the content of a folder')
+    parser.add_argument('--add',nargs=6, metavar='', type=str, 
+        help='adds patient to database: --add [FIRSTNAME] [LASTNAME] [DOB] [LEFT-EYE] [RIGHT-EYE] [SURGERY]')
+    parser.add_argument('--find',nargs="+", metavar='', type=str, 
+        help='returns a list of patient(s) from database: --find [FIELD] [CONTENT] ||| [FIELD]: all, id, firstname, lastname, dob, lefteye, righteye, surgery.')
+    parser.add_argument('--remove',nargs=2, metavar='', type=str,
+        help='removes patient to database: --remove [FIELD] [CONTENT] ||| [FIELD]: id, firstname, lastname.')
+    parser.add_argument('--count', action='store_true',
+        help='returns a list of patients in database: --count')
+    
+    args = parser.parse_args()
+    
+    print(args, sys.argv)
+    if args.add:
+        firstname = args.add[0]
+        lastname = args.add[1]
+        dob = args.add[2]
+        left_eye_template = args.add[3]
+        right_eye_template = args.add[4]
+        surgery = args.add[4]
+        add_patient(firstname, lastname, dob, left_eye_template, right_eye_template, surgery)
+    elif args.find:
+        field = args.find[0]
+        if field == 'all':
+            print(get_all_patients())
+        else:
+            content = args.find[1]
+            fields = {
+            "id": get_patient_by_id, 
+            "firstname":get_patient_by_firstname, 
+            "lastname": get_patient_by_lastname, 
+            "dob": get_patient_by_DOB, 
+            "lefteye": get_patient_by_left_eye_template, 
+            "righteye": get_patient_by_right_eye_template, 
+            "surgery": get_patient_by_surgery
+                }
+            
+            if field not in fields:
+                print("not valid field. Supported fields: ", fields.keys())
+            else:
+                if field == 'id':
+                    content = int(content)
+                print(fields[field](content))
+    elif args.remove:
+        print(args.remove)
+    elif args.count:
+        print(get_patient_count())
+    else: 
+        # do nothing
+        pass
+
+
+### ------------------------------------------------------------------------------------
+###     TEST CASES
+
 # print("all patients")
 # add_patient("abby", "wysopal", "1/1/1990","left-eye-template", "right-eye-template", "iris surgery")
 # add_patient("kiet", "nguyen", "4/3/1990","left-eye-template2", "right-eye-template2", "iris surgery2")
