@@ -8,6 +8,7 @@ from pyzbar import pyzbar
 import math
 import cv2
 import time
+import numpy as np
 from CapstoneClient import CapstoneClient
 
 
@@ -231,24 +232,35 @@ class Robot(object):
         self.__xCoordinate = 0
         self.__yCoordinate = 0
         self.__controller = CapstoneClient()
-        self.__controller.start()
-        self.__controller.sendRobotCommand(self.__controller.commands["initial"])
+        # self.__controller.start()
+        # self.__controller.sendRobotCommand(self.__controller.commands["initial"])
 
     def updateCoords(self, videoSource):
-        cap = cv2.VideoCapture(videoSource)
         qrCode = []
-        qrCode[0] = None
-        while (qrCode[0] == None):
-            ret, frame = cap.read()
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            qrCode = pyzbar.decode(gray)
-        cap.release()
+        while (not qrCode):
+            qrCode = Robot.detectQRCode(videoSource)
 
+        print(qrCode)
         (topLeft,topRight,bottomRight,bottomLeft) = qrCode[0].polygon
         centerX = (topLeft.x + bottomRight.x) / 2
         centerY = (topLeft.y + bottomRight.y) / 2
         robot.setX(centerX)
         robot.setY(centerY)
+
+    def detectQRCode(videoSource):
+        cap = cv2.VideoCapture(videoSource)
+        ret, frame = cap.read()
+        cap.release()
+        blurFrame = cv2.GaussianBlur(frame, (21, 21), 5)
+        sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
+        # qrCode = []
+        # qrCode = pyzbar.decode(frame)
+        qrCode2 = []
+        qrCode2 = pyzbar.decode(sharpFrame) 
+        # cv2.imshow("sharpFrame",sharpFrame)
+        # cv2.imshow("frame",frame)
+        # cv2.waitKey()
+        return qrCode2
 
     def setX(self, x):
         self.__xCoordinate = x
@@ -296,9 +308,10 @@ class Robot(object):
 if __name__ == "__main__":
     mtcnn = MTCNN()
     fd = FaceDetector(mtcnn)
-    patient = fd.start(fd.videoSources[sys.argv[1]], False)
+    # patient = fd.start(fd.videoSources[sys.argv[1]], False)
     robot = Robot()
-    print(moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=fd.videoSources[sys.argv[1]]))
+    robot.updateCoords(0)
+    # print(moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=fd.videoSources[sys.argv[1]]))
     # print(robot.getX())
     # print(robot.getY())
     # print(getPatient())
