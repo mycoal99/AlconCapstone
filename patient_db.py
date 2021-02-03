@@ -337,7 +337,7 @@ if __name__=="__main__":
     
     args = parser.parse_args()
     
-    print(args, sys.argv)
+    # print(args, sys.argv)
     if args.add:
         firstname = args.add[0]
         lastname = args.add[1]
