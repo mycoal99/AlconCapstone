@@ -249,17 +249,20 @@ class Robot(object):
 
     def detectQRCode(videoSource):
         cap = cv2.VideoCapture(videoSource)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         ret, frame = cap.read()
         cap.release()
+        print(frame.shape)
         blurFrame = cv2.GaussianBlur(frame, (21, 21), 5)
         sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
         # qrCode = []
         # qrCode = pyzbar.decode(frame)
         qrCode2 = []
         qrCode2 = pyzbar.decode(sharpFrame) 
-        # cv2.imshow("sharpFrame",sharpFrame)
-        # cv2.imshow("frame",frame)
-        # cv2.waitKey()
+        cv2.imshow("sharpFrame",sharpFrame)
+        cv2.imshow("frame",frame)
+        cv2.waitKey()
         return qrCode2
 
     def setX(self, x):
@@ -310,7 +313,8 @@ if __name__ == "__main__":
     fd = FaceDetector(mtcnn)
     # patient = fd.start(fd.videoSources[sys.argv[1]], False)
     robot = Robot()
-    robot.updateCoords(0)
+    # robot.updateCoords(0)
+    print(Robot.detectQRCode(0))
     # print(moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=fd.videoSources[sys.argv[1]]))
     # print(robot.getX())
     # print(robot.getY())

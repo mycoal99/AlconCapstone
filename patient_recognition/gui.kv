@@ -1,67 +1,91 @@
 #:kivy 2.0.0
 <Gui>:
-    MDGridLayout:
+    MDFloatLayout:
         size: root.size
-        rows: 2
-        cols: 2
-        orientation: "rl-tb"
+        # rows: 2
+        # cols: 2
+        # orientation: "rl-tb"
+        Camera:
+            id: surgery_video
+            # index: 1
+            allow_stretch: True
+            size_hint: 0.77, 0.88
+            pos_hint: {"x":0.01, "y":0.1}
         MDCard:
             padding: "8sp"
-            size_hint: 0.5,0.5
+            size_hint: 0.20,0.77
+            pos_hint: {"x":0.79, "y":0.22}
             orientation: "vertical"
+            # pos: surgery_video.right, self.parent.center_y / 2
             MDCard:
-                padding: "8sp"
+                padding: "4sp"
+                size: "50sp", "25sp"
                 MDLabel:
                     font_style: "H4"
                     id: patientNameLabel
-                    text: "Name:"
+                    text: root.name_label
+                    text_color: app.theme_cls.accent_color
+            MDSeparator:
+                height: "2sp"
+            MDCard:
+                padding: "4sp"
                 MDLabel:
                     font_style: "H4"
-                    id: patientName
-                    text: "Michael Who"
+                    id: surgeryTypeLabel
+                    text: root.surgery_label
+                    text_color: app.theme_cls.accent_color
             MDSeparator:
                 height: "2sp"
-            MDLabel:
-                font_style: "H4"
-                id: surgeryTypeLabel
-                text: "Surgery Type:"
-            MDLabel:
-                font_style: "H4"
-                id: surgeryType
-                text: "CatorActs"
-            MDSeparator:
-                height: "2sp"
-            MDLabel:
-                font_style: "H4"
-                id: surgicalEyeLabel
-                text: "Surgical Eye:"
-            MDLabel:
-                font_style: "H4"
-                id: surgicalEye
-                text: "Left"
+            MDCard:
+                padding: "4sp"
+                MDLabel:
+                    font_style: "H4"
+                    id: surgicalEyeLabel
+                    text: root.eye_label
+                    text_color: app.theme_cls.accent_color
             # MDLabel:
             #     id: label7
             #     text: "Label7"
             # MDLabel:
             #     id: label8
             #     text: "Label8"
-        Camera:
-            id: surgery_video
-            # index: 0
-            allow_stretch: True
-        MDGridLayout:
-            size_hint_x: 0.33
-            size_hint_y: 0.05
         MDFillRoundFlatIconButton:
             id: start_button
             text: "Start"
             icon: "play"
-            size: self.parent.width / 4, self.parent.height / 4
-            size_hint_y: 0.05
+            pos_hint: {"x":0.01, "y":0.01}
+            size_hint: 0.23, 0.1
             font_style: "H4"
             text_color: app.theme_cls.accent_color
             md_bg_color: app.theme_cls.primary_color
             on_press: root.start(self)
+        MDFillRoundFlatIconButton:
+            id: focus_button
+            text: "Focus"
+            icon: "focus-field"
+            pos_hint: {"x":0.25, "y":0.01}
+            size_hint: 0.23, 0.1
+            font_style: "H4"
+            text_color: app.theme_cls.accent_color
+            md_bg_color: app.theme_cls.primary_color
+            on_press: root.focus(self)
+        MDFillRoundFlatIconButton:
+            id: reset_button
+            text: "Reset"
+            icon: "skip-backward"
+            pos_hint: {"x":0.49, "y":0.01}
+            size_hint: 0.23, 0.1
+            font_style: "H4"
+            # font_size: self.width * 0.75
+            text_color: app.theme_cls.accent_color
+            md_bg_color: app.theme_cls.primary_color
+            on_press: root.reset(self)
+        FitImage:
+            id: alcon_image
+            source: "Alcon50.png"
+            size_hint: 0.27, 0.11
+            pos_hint: {"x": 0.72, "y": 0.02}
+            radius: [36, 36, 0, 0, ]
 
 
 
