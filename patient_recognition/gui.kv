@@ -29,6 +29,16 @@
                 height: "2sp"
             MDCard:
                 padding: "4sp"
+                size: "50sp", "25sp"
+                MDLabel:
+                    font_style: "H4"
+                    id: patientDOBLabel
+                    text: root.dob_label
+                    text_color: app.theme_cls.accent_color
+            MDSeparator:
+                height: "2sp"
+            MDCard:
+                padding: "4sp"
                 MDLabel:
                     font_style: "H4"
                     id: surgeryTypeLabel
@@ -43,12 +53,6 @@
                     id: surgicalEyeLabel
                     text: root.eye_label
                     text_color: app.theme_cls.accent_color
-            # MDLabel:
-            #     id: label7
-            #     text: "Label7"
-            # MDLabel:
-            #     id: label8
-            #     text: "Label8"
         MDFillRoundFlatIconButton:
             id: start_button
             text: "Start"
