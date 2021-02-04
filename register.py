@@ -10,22 +10,32 @@ from normalization.normalizeiris import normalizeiris
 from normalization.encode import encode
 import patient_db
 import hashlib
+import json
 
 ### SET UP DATABASE PATH-----------------------------------------------------------
-# with open('config.json') as f:
-#     config = json.load(f)
+with open('db-config.json') as f:
+    config = json.load(f)
 
 
-# PATH = config['database-local-path']
-# DATABASE_NAME = config['database-name']
+PATH = config['database-local-path']
+DATABASE_NAME = config['database-name']
+EYE_TEMPLATE_PATH = config['eye-template-folder-name']
 
-# try:
-#     if not os.path.exists(PATH):
-#         os.makedirs(PATH)
-# except:
-#     print("[EXCEPTION]: database irectory path is not valid.")
+try:
+    if not os.path.exists(PATH):
+        os.makedirs(PATH)
+    try:
+        if not os.path.exists(PATH + '/' + EYE_TEMPLATE_PATH):
+            os.makedirs(PATH + '/' + EYE_TEMPLATE_PATH)
+    except:
+        print("[EXCEPTION]: eye-template directory path is not valid.")
+except:
+    print("[EXCEPTION]: database directory path is not valid.")
 
-# DATABASE_NAME = PATH + '/' + DATABASE_NAME
+
+
+DATABASE_NAME = PATH + '/' + DATABASE_NAME
+
 ### -----------------------------------------------------------------------------------
 
 # from fnc.extractFeature import extractFeature
@@ -45,13 +55,13 @@ sigmaOnf = 0.5
 #------------------------------------------------------------------------------
 #	Argument parsing
 #------------------------------------------------------------------------------
-_, filename = sys.argv
-print(filename)
+_, left, right = sys.argv
+print(left)
 use_multiprocess = False
 
 # getting features
 try:
-    img = cv2.imread(filename, 0)
+    img = cv2.imread(left, 0)
 except:
     raise Exception("File not found.")
 
@@ -62,22 +72,23 @@ polar_array, noise_array = normalizeiris(imwithnoise, circleiris[1], circleiris[
 
 template, mask = encode(polar_array, noise_array, minWaveLength, mult, sigmaOnf)
 
-
 patient_id = "1"
 firstname = "ryan"
 lastname = "mitchell"
 DOB = "1/1/1905"
-eye_template = "ryan.mat"
-eye_template = hashlib.sha512(eye_template.encode()).hexdigest() 
+left_eye_template = "dummy-left.mat"
+right_eye_template = "dummy-right.mat"
+surgery = "iris-surgery"
+left_eye_template = hashlib.sha512(left_eye_template.encode()).hexdigest() 
 
-print(eye_template)
-patient_db.add_patient(patient_id, firstname, lastname, DOB, eye_template)
+print(left_eye_template)
+patient_db.add_patient(firstname, lastname, DOB, left_eye_template, right_eye_template, surgery)
 
 
 
 # Save extracted feature
-basename = os.path.basename(eye_template)
-out_file = os.path.join("./diagnostics/", "%s.mat" % (basename))
+basename = os.path.basename(left_eye_template)
+out_file = os.path.join(PATH + '/' + EYE_TEMPLATE_PATH, "%s.mat" % (basename))
 savemat(out_file, mdict={'template':template, 'mask':mask})
 
 print(out_file)

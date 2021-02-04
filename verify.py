@@ -7,6 +7,17 @@ from segmentation.segmentiris import segment
 from normalization.normalizeiris import normalizeiris
 from normalization.encode import encode
 import patient_db
+import json
+
+### SET UP DATABASE PATH-----------------------------------------------------------
+with open('db-config.json') as f:
+    config = json.load(f)
+
+
+PATH = config['database-local-path']
+DATABASE_NAME = config['database-name']
+EYE_TEMPLATE_PATH = config['eye-template-folder-name']
+### -------------------------------------------------------------------------------
 
 
 # # Segmentation parameters
@@ -93,7 +104,7 @@ def verify(img):
 
     template, mask = encode(polar_array, noise_array, minWaveLength, mult, sigmaOnf)
 
-    temp_dir = "./diagnostics/"
+    temp_dir = PATH + '/' + EYE_TEMPLATE_PATH
     threshold = 0.38
 
     result = matching(template, mask, temp_dir, threshold)
@@ -109,5 +120,5 @@ def verify(img):
         for res in result:
             print("\t", res)
             eye_template = res.split(".")[0]
-            patient_db.get_patient_by_eye_template(eye_template)
+            print(patient_db.get_patient_by_left_eye_template(eye_template))
 

@@ -15,10 +15,16 @@ with open('db-config.json') as f:
 PATH = config['database-local-path']
 DATABASE_NAME = config['database-name']
 DATABASE_MODEL = config['database-model']
+EYE_TEMPLATE_PATH = config['eye-template-folder-name']
 
 try:
     if not os.path.exists(PATH):
         os.makedirs(PATH)
+    try:
+        if not os.path.exists(PATH + '/' + EYE_TEMPLATE_PATH):
+            os.makedirs(PATH + '/' + EYE_TEMPLATE_PATH)
+    except:
+        print("[EXCEPTION]: eye-template directory path is not valid.")
 except:
     print("[EXCEPTION]: database irectory path is not valid.")
 
