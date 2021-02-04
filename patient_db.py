@@ -44,6 +44,11 @@ if not cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='
                     right_eye_template text,
                     surgery text
                 )""")
+  if not curr.execute("SELECT count(*) FROM sqlite_master WHERE type='index' and name='ix_patients_lastname_firstname').fetchall():
+    curr.execute("""
+                CREATE INDEX ix_patients_lastname_firstname ON patients (lastname, firstname);
+                CREATE INDEX ix_patiients_surgery ON patients (surgery);
+                """)
 
 connect.close()
 
