@@ -439,34 +439,7 @@ def json_format(patients):
 ### ------------------------------------------------------------------------------------
 if __name__=="__main__":
     print("MAIN")
-    parser = argparse.ArgumentParser(description='List the content of a folder')
-    parser.add_argument('--add',nargs=6, metavar='', type=str, 
-        help='adds patient to database: --add [FIRSTNAME] [LASTNAME] [DOB] [LEFT-EYE] [RIGHT-EYE] [SURGERY]')
-    parser.add_argument('--find',nargs="+", metavar='', type=str, 
-        help='returns a list of patient(s) from database: --find [FIELD] [CONTENT] ||| [FIELD]: all, id, firstname, lastname, dob, lefteye, righteye, surgery.')
-    parser.add_argument('--remove',nargs=2, metavar='', type=str,
-        help='removes patient to database: --remove [FIELD] [CONTENT] ||| [FIELD]: id, firstname, lastname.')
-    parser.add_argument('--count', action='store_true',
-        help='returns a list of patients in database: --count')
-    
-    args = parser.parse_args()
-    
-    # print(args, sys.argv)
-    if args.add:
-        firstname = args.add[0]
-        lastname = args.add[1]
-        dob = args.add[2]
-        left_eye_template = args.add[3]
-        right_eye_template = args.add[4]
-        surgery = args.add[4]
-        add_patient(firstname, lastname, dob, left_eye_template, right_eye_template, surgery)
-    elif args.find:
-        field = args.find[0]
-        if field == 'all':
-            print(get_all_patients())
-        else:
-            content = args.find[1]
-            fields = {
+    fields = {
             "id": get_patient_by_id, 
             "firstname":get_patient_by_firstname, 
             "lastname": get_patient_by_lastname, 
@@ -476,6 +449,35 @@ if __name__=="__main__":
             "surgery": get_patient_by_surgery
                 }
             
+    parser = argparse.ArgumentParser(description='List the content of a folder')
+    parser.add_argument('--add',nargs=6, metavar='', type=str, 
+        help='adds patient to database: --add [FIRSTNAME] [LASTNAME] [DOB] [LEFT-EYE] [RIGHT-EYE] [SURGERY]')
+    parser.add_argument('--find',nargs="+", metavar='', type=str, 
+        help='returns a list of patient(s) from database: --find [FIELD] [CONTENT] ||| [FIELD]: all, id, firstname, lastname, dob, lefteye, righteye, surgery.')
+    parser.add_argument('--remove',nargs=2, metavar='', type=str,
+        help='removes patient to database: --remove [FIELD] [CONTENT] ||| [FIELD]: id, firstname, lastname.')
+    parser.add_argument('--update',nargs=3, metavar='', type=str,
+        help='updates patient\'s info to database: --remove [ID] [FIELD] [CONTENT]||| [FIELD]: id, firstname, lastname.')
+    parser.add_argument('--count', action='store_true',
+        help='returns a list of patients in database: --count')
+    
+    args = parser.parse_args()
+    
+    # print(args, sys.argv)
+    if args.add:    #-------------------------- ADD
+        firstname = args.add[0]
+        lastname = args.add[1]
+        dob = args.add[2]
+        left_eye_template = args.add[3]
+        right_eye_template = args.add[4]
+        surgery = args.add[4]
+        add_patient(firstname, lastname, dob, left_eye_template, right_eye_template, surgery)
+    elif args.find:     #-------------------------- FIND
+        field = args.find[0]
+        if field == 'all':
+            print(get_all_patients())
+        else:
+            content = args.find[1]
             if field not in fields:
                 print("not valid field. Supported fields: ", fields.keys())
             else:
@@ -483,8 +485,22 @@ if __name__=="__main__":
                     content = int(content)
                 print(fields[field](content))
     elif args.remove:
+        #TODO
         print(args.remove)
-    elif args.count:
+    elif args.update:   #-------------------------- UPDATE
+        id = args.find[0]
+        field = args.find[1]
+        if field == 'all':
+            print(get_all_patients())
+        else:
+            content = args.find[2]
+            if field not in fields:
+                print("not valid field. Supported fields: ", fields.keys())
+            else:
+                if field == 'id':
+                    content = int(content)
+                print(fields[field](content)).
+    elif args.count:    #-------------------------- COUNT
         print(get_patient_count())
     else: 
         # do nothing
