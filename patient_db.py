@@ -137,6 +137,115 @@ def remove_patient_by_lastname(lastname:str):
         patient_list = cur.execute("DELETE FROM patients WHERE lastname=:lastname", {'lastname':lastname}).fetchall()
     connect.close()
 
+### ------------------------------ UPDATE QUERIES
+def update_patient_firstname_by_id(id:int, firstname:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            firstname (str): patient's firstname
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET firstname:=firstname WHERE id=:id", {'firstname':firstname, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_lastname_by_id(id:int, lastname:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            lastname (str): patient's lastname
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET lastname:=lastname WHERE id=:id", {'lastname':lastname, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_dob_by_id(id:int, dob:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            dob (str): patient's dob
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET dob:=dob WHERE id=:id", {'dob':dob, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_left_eye_template_by_id(id:int, left_eye_template:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            left_eye_template (str): patient's left_eye_template
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET left_eye_template:=left_eye_template WHERE id=:id", {'left_eye_template':left_eye_template, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_right_eye_template_by_id(id:int, right_eye_template:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            right_eye_template (str): patient's right_eye_template
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET right_eye_template:=right_eye_template WHERE id=:id", {'right_eye_template':right_eye_template, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_surgery_by_id(id:int, surgery:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            surgery (str): patient's surgery
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET surgery:=surgery WHERE id=:id", {'surgery':surgery, 'id':id}).fetchall()
+    connect.close()
+
+### ------------------------------ SELECT QUERIES
 
 def get_patient_by_id(id:int):
     '''
