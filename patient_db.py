@@ -488,6 +488,7 @@ if __name__=="__main__":
         #TODO
         print(args.remove)
     elif args.update:   #-------------------------- UPDATE
+        #TODO: Testing
         id = args.find[0]
         field = args.find[1]
         if field == 'all':
