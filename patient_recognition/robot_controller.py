@@ -86,83 +86,82 @@ from CapstoneClient import CapstoneClient
 def calc2DDistance(x1,y1,x2,y2):
     return math.sqrt(abs(x2-x1)**2 + abs(y2-y1)**2)
 
-def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0):
-		# Assign coordinates of QRCode to Robot object\
-		print(videoSource)
-		robot.updateCoords(videoSource)
+def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_time=2.5):
+        # Assign coordinates of QRCode to Robot object\
+        print(videoSource)
+        robot.updateCoords(videoSource)
 
-		# Get coordinates of patient's correct eye
-		#potentially the wrong eye
-		if (left):
-			eyeX = patient[0][0]
-			eyeY = patient[0][1]
-		else:
-			eyeX = patient[1][0]
-			eyeY = patient[1][1]
+        # Get coordinates of patient's correct eye
+        #potentially the wrong eye
+        if (left):
+            eyeX = patient[0][0]
+            eyeY = patient[0][1]
+        else:
+            eyeX = patient[1][0]
+            eyeY = patient[1][1]
 
-		# Calculate the distance between the robot and the eye
-		# Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
-		distanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
-		newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+        # Calculate the distance between the robot and the eye
+        # Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
+        distanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+        newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
 
-		# Repeat this block for each direction twice, to make sure each direction gets atleast one chance to move the robot closer.
-		# Robot moves in one direction, then consistently updates its coordinates and its distance to the eye.
-		# If the new distance to the eye is greater than the previous difference, the loop breaks and the robot stops
-		# If the distance to the eye is less than 15 pixels, the function returns
-		# Once the robot stops, the newDistance is set to the baseline distance, and the robot begins again in a new direction until it returns.
-		
-		sleep_time = 2.5
-		final_distance_to_eye = 10
+        # Repeat this block for each direction twice, to make sure each direction gets atleast one chance to move the robot closer.
+        # Robot moves in one direction, then consistently updates its coordinates and its distance to the eye.
+        # If the new distance to the eye is greater than the previous difference, the loop breaks and the robot stops
+        # If the distance to the eye is less than 15 pixels, the function returns
+        # Once the robot stops, the newDistance is set to the baseline distance, and the robot begins again in a new direction until it returns.
+        
+        final_distance_to_eye = 10
 
-		while newDistanceToEye <= distanceToEye:
-			print("right while loop 1")
-			robot.right()
-			time.sleep(sleep_time)
-			robot.stop()
-			distanceToEye = newDistanceToEye
-			robot.updateCoords(videoSource)
-			newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
-			if newDistanceToEye < final_distance_to_eye:
-				return True
-		distanceToEye = newDistanceToEye
+        while newDistanceToEye <= distanceToEye:
+            print("right while loop 1")
+            robot.right()
+            time.sleep(sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(videoSource)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            if newDistanceToEye < final_distance_to_eye:
+                return True
+        distanceToEye = newDistanceToEye
 
-		while newDistanceToEye <= distanceToEye:
-			print("forward while loop 1")
-			robot.forward()
-			time.sleep(sleep_time)
-			robot.stop()
-			distanceToEye = newDistanceToEye
-			robot.updateCoords(videoSource)
-			newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
-			if newDistanceToEye < final_distance_to_eye:
-				return True
-		distanceToEye = newDistanceToEye
+        while newDistanceToEye <= distanceToEye:
+            print("forward while loop 1")
+            robot.forward()
+            time.sleep(sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(videoSource)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            if newDistanceToEye < final_distance_to_eye:
+                return True
+        distanceToEye = newDistanceToEye
 
-		while newDistanceToEye <= distanceToEye:
-			print("left while loop 1")
-			robot.left()
-			time.sleep(sleep_time)
-			robot.stop()
-			distanceToEye = newDistanceToEye
-			robot.updateCoords(videoSource)
-			newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
-			if newDistanceToEye < final_distance_to_eye:
-				return True
-		distanceToEye = newDistanceToEye
+        while newDistanceToEye <= distanceToEye:
+            print("left while loop 1")
+            robot.left()
+            time.sleep(sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(videoSource)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            if newDistanceToEye < final_distance_to_eye:
+                return True
+        distanceToEye = newDistanceToEye
 
-		while newDistanceToEye <= distanceToEye:
-			print("backward while loop 1")
-			robot.backward()
-			time.sleep(sleep_time)
-			robot.stop()
-			distanceToEye = newDistanceToEye
-			robot.updateCoords(videoSource)
-			newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
-			if newDistanceToEye < final_distance_to_eye:
-				return True
-		distanceToEye = newDistanceToEye
+        while newDistanceToEye <= distanceToEye:
+            print("backward while loop 1")
+            robot.backward()
+            time.sleep(sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(videoSource)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            if newDistanceToEye < final_distance_to_eye:
+                return True
+        distanceToEye = newDistanceToEye
 
-		return False
+        return False
 
 def getPatient(source):
     mtcnn = MTCNN()
@@ -199,132 +198,150 @@ def getPatient(source):
 
 class Robot(object):
 
-	# __xCoordinate = 0
-	# __yCoordinate = 0
-	# __controller = CapstoneClient()
+    # __xCoordinate = 0
+    # __yCoordinate = 0
+    # __controller = CapstoneClient()
 
-	def __init__(self):
-		self.__xCoordinate = 0
-		self.__yCoordinate = 0
-		self.__controller = CapstoneClient()
-		self.__controller.start()
-		#self.__controller.sendRobotCommand(self.__controller.commands["initial"])
+    def __init__(self):
+        self.__xCoordinate = 0
+        self.__yCoordinate = 0
+        self.__controller = CapstoneClient()
+        self.__controller.start()
+        #self.__controller.sendRobotCommand(self.__controller.commands["initial"])
 
-	def updateCoords(self, videoSource):
-		qrCode = []
+    def updateCoords(self, videoSource):
+        qrCode = []
 
-		while(not qrCode):
-			qrCode = Robot.detectQRCode(videoSource)
+        # while(not qrCode):
+        #     qrCode = Robot.detectQRCode(videoSource)
 
-		print(qrCode)
+        # print(qrCode)
 
-		# cap = cv2.VideoCapture(videoSource)
-		# FOUND_QR = False
-		# while(not FOUND_QR):
-		# # while(len(qrCode) == 0):		
-		# 	ret, frame = cap.read()
-			
-		# 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-		# 	#gray[gray>150] = 255
-		# 	cv2.imshow('frame',gray)
-		# 	qrCode = pyzbar.decode(gray)
-		# 	if cv2.waitKey(1) & 0xFF == ord('q'):
-		# 		break
-		# 	if(len(qrCode) > 0):
-		# 		print("zbar:", qrCode)
-		# 		print(len(qrCode[0].polygon))
-		# 		if(len(qrCode[0].polygon) == 4):
-		# 			FOUND_QR = True
+        cap = cv2.VideoCapture(videoSource)
+        FOUND_QR = False
+        while(not FOUND_QR):
+        # while(len(qrCode) == 0):        
+            ret, frame = cap.read()
+            
+            blurFrame = cv2.GaussianBlur(frame, (21,21), 5)
+            sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
+            gray = cv2.cvtColor(sharpFrame, cv2.COLOR_BGR2GRAY)
 
-		# cv2.destroyAllWindows()
-		# cap.release()
+            x = int(self.getX())
+            y = int(self.getY())
+            cv2.circle(sharpFrame, (x, y), 1, (0, 255, 0), 2)
+            cv2.circle(sharpFrame, (y, x), 1, (255, 255, 0), 2)
 
-		(topLeft,topRight,bottomRight,bottomLeft) = qrCode[0].polygon
-		centerX = (topLeft.x + bottomRight.x) / 2
-		centerY = (topLeft.y + bottomRight.y) / 2
-		robot.setX(centerX)
-		robot.setY(centerY)
+            #gray[gray>150] = 255
+            cv2.imshow('frame', sharpFrame)
+            qrCode = pyzbar.decode(gray)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+            if(len(qrCode) > 0):
+                print("zbar:", qrCode)
+                print(len(qrCode[0].polygon))
+                if(len(qrCode[0].polygon) == 4):
+                    FOUND_QR = True
 
-	def detectQRCode(videoSource):
-		cap = cv2.VideoCapture(videoSource)
-		cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-		cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-		ret, frame = cap.read()
-		cap.release()
+        cv2.destroyAllWindows()
+        cap.release()
 
-		print(frame.shape)
-		blurFrame = cv2.GaussianBlur(frame, (21,21), 5)
-		sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
-		qrCode2 = []
-		qrCode = pyzbar.decode(sharpFrame)
+        (topLeft,topRight,bottomRight,bottomLeft) = qrCode[0].polygon
+        # centerX = (topLeft.x + bottomRight.x) / 2
+        centerX = (topRight.x + bottomRight.x) / 2
+        # centerY = (topLeft.y + bottomRight.y) / 2
+        centerY = (topRight.y + bottomRight.y) / 2
+        robot.setX(centerX)
+        robot.setY(centerY)
 
-		return qrCode2
+    # def detectQRCode(videoSource):
+    #     cap = cv2.VideoCapture(videoSource)
+    #     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    #     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    #     ret, frame = cap.read()
 
-	def setX(self, x):
-		self.__xCoordinate = x
+    #     cap.release()
 
-	def setY(self, y):
-		self.__yCoordinate = y
+    #     blurFrame = cv2.GaussianBlur(frame, (21,21), 5)
+    #     sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
+    #     qrCode2 = []
+    #     qrCode = pyzbar.decode(sharpFrame)
+    #     cv2.imshow("sharp", sharpFrame)
+    #     cv2.imshow("frame", frame)
 
-	def getX(self):
-		return self.__xCoordinate
+    #     cv2.waitKey()
 
-	def getY(self):
-		return self.__yCoordinate
-		
-	def initial(self):
-		print("initial")
-		self.__controller.sendRobotCommand(self.__controller.commands["initial"])
-	def right(self):
-		print("right")
-		self.__controller.sendRobotCommand(self.__controller.commands["right"])
-	def left(self):
-		print("left")
-		self.__controller.sendRobotCommand(self.__controller.commands["left"])
-	def forward(self):
-		print("forward")
-		self.__controller.sendRobotCommand(self.__controller.commands["forward"])
-	def backward(self):
-		print("backward")
-		self.__controller.sendRobotCommand(self.__controller.commands["backward"])
-	def up(self):
-		print("up")
-		self.__controller.sendRobotCommand(self.__controller.commands["up"])
-	def down(self):
-		print("down")
-		self.__controller.sendRobotCommand(self.__controller.commands["down"])
-	def stop(self):
-		print("stop")
-		self.__controller.sendRobotCommand(self.__controller.commands["stop"])
+    #     return qrCode2
+
+    def setX(self, x):
+        self.__xCoordinate = x
+
+    def setY(self, y):
+        self.__yCoordinate = y
+
+    def getX(self):
+        return self.__xCoordinate
+
+    def getY(self):
+        return self.__yCoordinate
+        
+    def initial(self):
+        print("initial")
+        self.__controller.sendRobotCommand(self.__controller.commands["initial"])
+    def right(self):
+        print("right")
+        self.__controller.sendRobotCommand(self.__controller.commands["right"])
+    def left(self):
+        print("left")
+        self.__controller.sendRobotCommand(self.__controller.commands["left"])
+    def forward(self):
+        print("forward")
+        self.__controller.sendRobotCommand(self.__controller.commands["forward"])
+    def backward(self):
+        print("backward")
+        self.__controller.sendRobotCommand(self.__controller.commands["backward"])
+    def up(self):
+        print("up")
+        self.__controller.sendRobotCommand(self.__controller.commands["up"])
+    def down(self):
+        print("down")
+        self.__controller.sendRobotCommand(self.__controller.commands["down"])
+    def stop(self):
+        print("stop")
+        self.__controller.sendRobotCommand(self.__controller.commands["stop"])
 
 
-	def rotate(self, theta):
-		print("Rotating {0} degrees".format(theta))
+    def rotate(self, theta):
+        print("Rotating {0} degrees".format(theta))
 
-	def rotate180(self):
-		print("Rotating 180 Degrees")
+    def rotate180(self):
+        print("Rotating 180 Degrees")
 
-	def rotate90CW(self):
-		print("Rotating 90 Degrees Clockwise")
+    def rotate90CW(self):
+        print("Rotating 90 Degrees Clockwise")
 
-	def rotate90CCW(self):
-		print("Rotating 90 Degrees Counter-Clockwise")
+    def rotate90CCW(self):
+        print("Rotating 90 Degrees Counter-Clockwise")
 
 if __name__ == "__main__":
-	# mtcnn = MTCNN()
-	# print("after mtcnn")
-	# fd = FaceDetector(mtcnn)
-	# print("after facedetector")
-	# patient = fd.start(fd.videoSources[sys.argv[1]], False)
-	# print("after fd start")
-	robot = Robot()
-	robot.initial()
-	time.sleep(3)
-	patient = getPatient(sys.argv[1])
-	print("after robot")
-	moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1)
-	print(robot.getX())
-	print(robot.getY())
-	print(patient)
+    # mtcnn = MTCNN()
+    # print("after mtcnn")
+    # fd = FaceDetector(mtcnn)
+    # print("after facedetector")
+    # patient = fd.start(fd.videoSources[sys.argv[1]], False)
+    # print("after fd start")
+    robot = Robot()
+    robot.initial()
+    time.sleep(3)
+    patient = getPatient(sys.argv[1])
+    print("after robot")
+    moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1)
+    moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1, sleep_time=1.5)
+    robot.forward()
+    time.sleep(.7)
+    robot.stop()
+    print(robot.getX())
+    print(robot.getY())
+    print(patient)
 
-	#change sleep_time based on distance
+    #change sleep_time based on distance

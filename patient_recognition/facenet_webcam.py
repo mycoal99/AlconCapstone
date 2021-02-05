@@ -3,6 +3,7 @@ import torch
 import numpy as np
 from facenet_pytorch import MTCNN
 import math
+import sys
 
 class FaceDetector(object):
     """
@@ -11,7 +12,7 @@ class FaceDetector(object):
 # "rtsp://admin:qdEJv96DYtbd@192.168.1.30" for Ryan's ReolinkWebCam
 # videoSource = "rtsp://<username>:<password>@<staticIP>" for Michael's ReolinkWebCam
 # videoSource = "rtsp://<username>:<password>@<staticIP>
-    videoSources = {"native" : 0,
+    videoSources = {"native" : 1,
                     "redding" : "rtsp://admin:qdEJv96DYtbd@192.168.1.30",
                     "iv" : "rtsp://admin:sharkboyseth@192.168.0.23",
                     "sj" : "rtsp://admin:<password>@<staticIP>"}
@@ -162,4 +163,9 @@ class FaceDetector(object):
                     maxActive = state
         return maxActive
                
-# print(fcd.start())
+# # print(fcd.start())
+if __name__ == "__main__":
+    mtcnn = MTCNN()
+    fd = FaceDetector(mtcnn)
+    patient = fd.start(fd.videoSources[sys.argv[1]], True)
+    print(patient)

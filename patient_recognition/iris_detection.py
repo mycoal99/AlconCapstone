@@ -40,9 +40,9 @@ def center(robot=0, videoSource=0, sleep_time = .5):
 
             threshold = cv2.threshold(gray_blurred, 15, 255, cv2.THRESH_BINARY_INV)[1]
             contours = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            # path = "C:\\Users\\Alcon\\Desktop\\eyeimages\\"
-            # photoName = path + "Center_Eye_1_" + str(photoNum) + ".png"
-            # print(photoName)
+            path = "C:\\Users\\Alcon\\Desktop\\eyeimages\\"
+            photoName = path + "Center_Eye_" + str(sleep_time) + "_" + str(photoNum) + ".png"
+            print(photoName)
             #Pupil detection
             if type(contours[1]) != None:
                 contours = sorted(contours[0], key=lambda x: cv2.contourArea(x))
@@ -62,44 +62,45 @@ def center(robot=0, videoSource=0, sleep_time = .5):
                     #set pupil in center of camera
                     #API call- move (north, south, east, west), wait, stop
                 
-                print()
-                sum_a = sum(average_a)/index
-                sum_b = sum(average_b)/index
-                # print("sum_a: ", sum_a)
-                # print("sum_b: ", sum_b)
-                if(sum_a > int(width/2) - WIDTH_THRESHOLD and sum_a < int(width/2) + WIDTH_THRESHOLD 
-                    and sum_b < int(height/2) + HEIGHT_THESHOLD 
-                    and sum_b > int(height/2) - HEIGHT_THESHOLD):
-                    EYE_CENTERED = True
+                if(sum(average_a) != 0 and sum(average_b) != 0):
+                    sum_a = sum(average_a)/index
+                    sum_b = sum(average_b)/index
+                    # print("sum_a: ", sum_a)
+                    # print("sum_b: ", sum_b)
+                    if(sum_a > int(width/2) - WIDTH_THRESHOLD and sum_a < int(width/2) + WIDTH_THRESHOLD 
+                        and sum_b < int(height/2) + HEIGHT_THESHOLD 
+                        and sum_b > int(height/2) - HEIGHT_THESHOLD):
+                        EYE_CENTERED = True
 
-                if(sum_a < int(width/2) - WIDTH_THRESHOLD):
-                    print("move right")
-                    robot.right()
-                    time.sleep(sleep_time)
-                    robot.stop()
+                    if(sum_a < int(width/2) - WIDTH_THRESHOLD):
+                        print("move right")
+                        robot.right()
+                        time.sleep(sleep_time)
+                        robot.stop()
 
-                if(sum_a > int(width/2) + WIDTH_THRESHOLD):
-                    print("move left")
-                    robot.left()
-                    time.sleep(sleep_time)
-                    robot.stop()
-                    
-                if(sum_b > int(height/2) + HEIGHT_THESHOLD):
-                    print("move forward")
-                    robot.forward()
-                    time.sleep(sleep_time)
-                    robot.stop()
+                    if(sum_a > int(width/2) + WIDTH_THRESHOLD):
+                        print("move left")
+                        robot.left()
+                        time.sleep(sleep_time)
+                        robot.stop()
+                        
+                    if(sum_b > int(height/2) + HEIGHT_THESHOLD):
+                        print("move forward")
+                        robot.forward()
+                        time.sleep(sleep_time)
+                        robot.stop()
 
-                if(sum_b < int(height/2) - HEIGHT_THESHOLD):
-                    print("move backward")    
-                    robot.backward()
-                    time.sleep(sleep_time)
-                    robot.stop()
+                    if(sum_b < int(height/2) - HEIGHT_THESHOLD):
+                        print("move backward")    
+                        robot.backward()
+                        time.sleep(sleep_time)
+                        robot.stop()
+                        
 
-            # cv2.imwrite(photoName, img)
+            cv2.imwrite(photoName, img)
             photoNum += 1
             cv2.imshow("camera", img)
-            cv2.waitKey(10)
+            cv2.waitKey(15)
 
         cap.release()
         cv2.destroyAllWindows()
@@ -112,7 +113,7 @@ def center(robot=0, videoSource=0, sleep_time = .5):
 
 def zoom(robot=0, videoSource=0, sleep_time = .2):
     SET_UP_COMPLETE = False
-    FINAL_IRIS_SIZE = 95 #TODO
+    FINAL_IRIS_SIZE = 36 #TODO
 
     #begin live stream
     #set surgical camera as videoSource
@@ -140,7 +141,7 @@ def zoom(robot=0, videoSource=0, sleep_time = .2):
             #play around with param1 and param2
             detected_circles = cv2.HoughCircles(gray_blurred,  
                 cv2.HOUGH_GRADIENT, 1, 20, param1 = 40, 
-                param2 = 20, minRadius = 50, maxRadius = 120)
+                param2 = 20, minRadius = 10, maxRadius = 50)
 
             # find the iris and move closer to eye
             if detected_circles is not None: 
@@ -159,9 +160,9 @@ def zoom(robot=0, videoSource=0, sleep_time = .2):
 
                         if(r < FINAL_IRIS_SIZE or counter < 10):
                             print("move down")
-                            # robot.down()
-                            # time.sleep(sleep_time)
-                            # robot.stop()
+                            robot.down()
+                            time.sleep(sleep_time)
+                            robot.stop()
                             counter += 1
 
                         if (r >= FINAL_IRIS_SIZE or counter >= 10):
@@ -187,9 +188,9 @@ def zoom(robot=0, videoSource=0, sleep_time = .2):
 
 
 def moveRobotToEye(robot=0, videoSource=0):
-    # center(robot, videoSource, .4)
+    center(robot, videoSource, .3)
     zoom(robot, videoSource)
-    # center(robot, videoSource, .2)
+    center(robot, videoSource, .15)
 
 
 '''
@@ -199,29 +200,45 @@ def moveRobotToEye(robot=0, videoSource=0):
 
 
 if __name__ == "__main__":
-    #potentially use patient detention again and zoom in from there
-    robot = Robot()
-    #new initialized it is set to initial position... need to fix that
-    moveRobotToEye(robot=robot, videoSource=0)
-        # seperate center and zoom functionality
-        # change sleep parameters
-        # call center then zoom then center
-        # decrease range of error for centering
+    # #potentially use patient detention again and zoom in from there
+    # robot = Robot()
+    # #new initialized it is set to initial position... need to fix that
+    # moveRobotToEye(robot=robot, videoSource=0)
+    #     # seperate center and zoom functionality
+    #     # change sleep parameters
+    #     # call center then zoom then center
+    #     # decrease range of error for centering
 
-    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
 
-    # while(True):
-    #     # Capture frame-by-frame
-    #     ret, frame = cap.read()
+    while(True):
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        height, width, channels = frame.shape
+        # (480, 640, 3)
 
-    #     # Our operations on the frame come here
+        zoom = 1/3
+        y = int(height * zoom)
+        y1 = int(height * (1 - zoom))
+        x = int(width * zoom)
+        x1 = int(width * (1 - zoom))
+        
+        img = frame[y: y1, x: x1]
+        img = cv2.resize(img, (width, height))
 
-    #     # Display the resulting frame
-    #     cv2.imshow('frame',frame[::-1])
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
+        blurFrame = cv2.GaussianBlur(img, (21,21), 5)
+        sharpFrame = cv2.addWeighted(img, 1.5, blurFrame, -0.5, 0)
 
-    # # When everything done, release the capture
-    # cap.release()
-    # cv2.destroyAllWindows()
+        # Our operations on the frame come here
+
+        # Display the resulting frame
+        #cv2.imshow('frame',img[::-1])
+        cv2.imshow('img',sharpFrame)
+        cv2.imshow('frame',frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # When everything done, release the capture
+    cap.release()
+    cv2.destroyAllWindows()
 
