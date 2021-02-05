@@ -6,7 +6,7 @@ class Patient:
         self.lastname = lastname
         self.DOB = DOB
         self.left_eye_template = left_eye_template
-        self.right_eye_template = left_eye_template
+        self.right_eye_template = right_eye_template
         self.surgery = surgery
 
     # @property

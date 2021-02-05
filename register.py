@@ -56,7 +56,7 @@ sigmaOnf = 0.5
 #	Argument parsing
 #------------------------------------------------------------------------------
 _, left, right = sys.argv
-print(left)
+print(left, "-----", right)
 use_multiprocess = False
 
 # getting features
@@ -72,16 +72,19 @@ polar_array, noise_array = normalizeiris(imwithnoise, circleiris[1], circleiris[
 
 template, mask = encode(polar_array, noise_array, minWaveLength, mult, sigmaOnf)
 
-patient_id = "1"
-firstname = "ryan"
-lastname = "mitchell"
-DOB = "1/1/1905"
-left_eye_template = "dummy-left.mat"
-right_eye_template = "dummy-right.mat"
-surgery = "iris-surgery"
-left_eye_template = hashlib.sha512(left_eye_template.encode()).hexdigest() 
 
+### ADD TO DATABASE
+patient_id = "1"
+firstname = "Brent"
+lastname = "Luker"
+DOB = "09/20/1999"
+left_eye_template = left
+right_eye_template = right
+surgery = "cataract-surgery"
+left_eye_template = hashlib.sha512(left_eye_template.encode()).hexdigest() 
+right_eye_template = hashlib.sha512(right_eye_template.encode()).hexdigest() 
 print(left_eye_template)
+print(right_eye_template)
 patient_db.add_patient(firstname, lastname, DOB, left_eye_template, right_eye_template, surgery)
 
 
@@ -91,7 +94,40 @@ basename = os.path.basename(left_eye_template)
 out_file = os.path.join(PATH + '/' + EYE_TEMPLATE_PATH, "%s.mat" % (basename))
 savemat(out_file, mdict={'template':template, 'mask':mask})
 
-print(out_file)
+
+
+
+
+# -------------RIGHT
+# getting features
+try:
+    img = cv2.imread(right, 0)
+except:
+    raise Exception("File not found.")
+
+circleiris, circlepupil, imwithnoise = segment(img, eyelashes_thres, use_multiprocess)
+polar_array, noise_array = normalizeiris(imwithnoise, circleiris[1], circleiris[0], circleiris[2],
+										 circlepupil[1], circlepupil[0], circlepupil[2],
+										 radial_res, angular_res)
+
+template, mask = encode(polar_array, noise_array, minWaveLength, mult, sigmaOnf)
+
+
+
+
+# Save extracted feature
+basename = os.path.basename(right_eye_template)
+out_file = os.path.join(PATH + '/' + EYE_TEMPLATE_PATH, "%s.mat" % (basename))
+savemat(out_file, mdict={'template':template, 'mask':mask})
+
+
+
+
+
+
+
+
+# print(out_file)
 ##-----------------------------------------------------------------------------
 ##  Execution
 ##-----------------------------------------------------------------------------
