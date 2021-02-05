@@ -121,4 +121,6 @@ def verify(img):
             print("\t", res)
             eye_template = res.split(".")[0]
             print(patient_db.get_patient_by_left_eye_template(eye_template))
+            print(patient_db.get_patient_by_right_eye_template(eye_template))
+
 
