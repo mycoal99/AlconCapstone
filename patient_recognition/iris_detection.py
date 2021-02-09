@@ -191,6 +191,39 @@ def moveRobotToEye(robot=0, videoSource=0):
     center(robot, videoSource, .3)
     zoom(robot, videoSource)
     center(robot, videoSource, .15)
+    #cropping
+#     cap = cv2.VideoCapture(0)
+
+#     while(True):
+#         # Capture frame-by-frame
+#         ret, frame = cap.read()
+#         height, width, channels = frame.shape
+#         # (480, 640, 3)
+
+#         zoom = 1/3
+#         y = int(height * zoom)
+#         y1 = int(height * (1 - zoom))
+#         x = int(width * zoom)
+#         x1 = int(width * (1 - zoom))
+        
+#         img = frame[y: y1, x: x1]
+#         img = cv2.resize(img, (width, height))
+
+#         blurFrame = cv2.GaussianBlur(img, (21,21), 5)
+#         sharpFrame = cv2.addWeighted(img, 1.5, blurFrame, -0.5, 0)
+
+#         # Our operations on the frame come here
+
+#         # Display the resulting frame
+#         #cv2.imshow('frame',img[::-1])
+#         cv2.imshow('img',sharpFrame)
+#         cv2.imshow('frame',frame)
+#         if cv2.waitKey(1) & 0xFF == ord('q'):
+#             break
+
+#     # When everything done, release the capture
+#     cap.release()
+#     cv2.destroyAllWindows()
 
 
 '''
@@ -201,44 +234,11 @@ def moveRobotToEye(robot=0, videoSource=0):
 
 if __name__ == "__main__":
     # #potentially use patient detention again and zoom in from there
-    # robot = Robot()
-    # #new initialized it is set to initial position... need to fix that
-    # moveRobotToEye(robot=robot, videoSource=0)
+    robot = Robot()
+    #new initialized it is set to initial position... need to fix that
+    moveRobotToEye(robot=robot, videoSource=0)
     #     # seperate center and zoom functionality
     #     # change sleep parameters
     #     # call center then zoom then center
     #     # decrease range of error for centering
-
-    cap = cv2.VideoCapture(0)
-
-    while(True):
-        # Capture frame-by-frame
-        ret, frame = cap.read()
-        height, width, channels = frame.shape
-        # (480, 640, 3)
-
-        zoom = 1/3
-        y = int(height * zoom)
-        y1 = int(height * (1 - zoom))
-        x = int(width * zoom)
-        x1 = int(width * (1 - zoom))
-        
-        img = frame[y: y1, x: x1]
-        img = cv2.resize(img, (width, height))
-
-        blurFrame = cv2.GaussianBlur(img, (21,21), 5)
-        sharpFrame = cv2.addWeighted(img, 1.5, blurFrame, -0.5, 0)
-
-        # Our operations on the frame come here
-
-        # Display the resulting frame
-        #cv2.imshow('frame',img[::-1])
-        cv2.imshow('img',sharpFrame)
-        cv2.imshow('frame',frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # When everything done, release the capture
-    cap.release()
-    cv2.destroyAllWindows()
 
