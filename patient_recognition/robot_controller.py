@@ -92,7 +92,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
         robot.updateCoords(videoSource)
 
         # Get coordinates of patient's correct eye
-        #potentially the wrong eye
+        # potentially the wrong eye
         if (left):
             eyeX = patient[0][0]
             eyeY = patient[0][1]
@@ -121,6 +121,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             distanceToEye = newDistanceToEye
             robot.updateCoords(videoSource)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
                 return True
         distanceToEye = newDistanceToEye
@@ -133,6 +134,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             distanceToEye = newDistanceToEye
             robot.updateCoords(videoSource)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
                 return True
         distanceToEye = newDistanceToEye
@@ -145,6 +147,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             distanceToEye = newDistanceToEye
             robot.updateCoords(videoSource)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
                 return True
         distanceToEye = newDistanceToEye
@@ -157,6 +160,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             distanceToEye = newDistanceToEye
             robot.updateCoords(videoSource)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
                 return True
         distanceToEye = newDistanceToEye
@@ -167,10 +171,16 @@ def getPatient(source):
     mtcnn = MTCNN()
     fd = FaceDetector(mtcnn)
     cap = cv2.VideoCapture(1)
+
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     ret, frame = cap.read()
+
     maxImageHeight = frame.shape[0]
     maxImageWidth = frame.shape[1]
+
     cap.release()
+
     patient = fd.start(fd.videoSources[source], False)
     orientation = patient[4]
     if orientation == 0:
@@ -218,6 +228,9 @@ class Robot(object):
         # print(qrCode)
 
         cap = cv2.VideoCapture(videoSource)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
         FOUND_QR = False
         while(not FOUND_QR):
         # while(len(qrCode) == 0):        
@@ -340,8 +353,5 @@ if __name__ == "__main__":
     robot.forward()
     time.sleep(.7)
     robot.stop()
-    print(robot.getX())
-    print(robot.getY())
-    print(patient)
 
     #change sleep_time based on distance
