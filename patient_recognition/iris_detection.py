@@ -24,8 +24,8 @@ def center(robot=0, videoSource=0, sleep_time = .5):
     #begin live stream
     #set surgical camera as videoSource
     cap = cv2.VideoCapture(videoSource) 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
     ret, img = cap.read()
     height, width, channels = img.shape
     photoNum = 0
@@ -198,8 +198,8 @@ def moveRobotToEye(robot=0, videoSource=0):
     
     #cropping image 
     cap = cv2.VideoCapture(videoSource)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
 
     ret, frame = cap.read()
     height, width, channels = frame.shape
