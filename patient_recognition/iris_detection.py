@@ -197,6 +197,7 @@ def moveRobotToEye(robot=0, videoSource=0):
     center(robot, videoSource, .15)
     
     #cropping image 
+    #make a crop function
     cap = cv2.VideoCapture(videoSource)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
