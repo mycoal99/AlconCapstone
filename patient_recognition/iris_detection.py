@@ -121,8 +121,8 @@ def zoom(robot=0, videoSource=0, sleep_time = .2):
     #begin live stream
     #set surgical camera as videoSource
     cap = cv2.VideoCapture(videoSource) 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
     ret, img = cap.read()
     height, width, channels = img.shape
     counter = 0
