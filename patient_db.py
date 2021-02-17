@@ -44,6 +44,11 @@ if not cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='
                     right_eye_template text,
                     surgery text
                 )""")
+  if not curr.execute("SELECT count(*) FROM sqlite_master WHERE type='index' and name='ix_patients_lastname_firstname').fetchall():
+    curr.execute("""
+                CREATE INDEX ix_patients_lastname_firstname ON patients (lastname, firstname);
+                CREATE INDEX ix_patiients_surgery ON patients (surgery);
+                """)
 
 connect.close()
 
@@ -132,6 +137,115 @@ def remove_patient_by_lastname(lastname:str):
         patient_list = cur.execute("DELETE FROM patients WHERE lastname=:lastname", {'lastname':lastname}).fetchall()
     connect.close()
 
+### ------------------------------ UPDATE QUERIES
+def update_patient_firstname_by_id(id:int, firstname:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            firstname (str): patient's firstname
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET firstname:=firstname WHERE id=:id", {'firstname':firstname, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_lastname_by_id(id:int, lastname:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            lastname (str): patient's lastname
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET lastname:=lastname WHERE id=:id", {'lastname':lastname, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_dob_by_id(id:int, dob:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            dob (str): patient's dob
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET dob:=dob WHERE id=:id", {'dob':dob, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_left_eye_template_by_id(id:int, left_eye_template:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            left_eye_template (str): patient's left_eye_template
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET left_eye_template:=left_eye_template WHERE id=:id", {'left_eye_template':left_eye_template, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_right_eye_template_by_id(id:int, right_eye_template:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            right_eye_template (str): patient's right_eye_template
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET right_eye_template:=right_eye_template WHERE id=:id", {'right_eye_template':right_eye_template, 'id':id}).fetchall()
+    connect.close()
+
+
+def update_patient_surgery_by_id(id:int, surgery:str):
+    '''
+    Update patient's data by id.
+        Input:
+            id (int): patient_id
+            surgery (str): patient's surgery
+        Output:
+            Void
+
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    with connect:
+        patient_list = cur.execute("UPDATE patients SET surgery:=surgery WHERE id=:id", {'surgery':surgery, 'id':id}).fetchall()
+    connect.close()
+
+### ------------------------------ SELECT QUERIES
 
 def get_patient_by_id(id:int):
     '''
@@ -325,34 +439,7 @@ def json_format(patients):
 ### ------------------------------------------------------------------------------------
 if __name__=="__main__":
     print("MAIN")
-    parser = argparse.ArgumentParser(description='List the content of a folder')
-    parser.add_argument('--add',nargs=6, metavar='', type=str, 
-        help='adds patient to database: --add [FIRSTNAME] [LASTNAME] [DOB] [LEFT-EYE] [RIGHT-EYE] [SURGERY]')
-    parser.add_argument('--find',nargs="+", metavar='', type=str, 
-        help='returns a list of patient(s) from database: --find [FIELD] [CONTENT] ||| [FIELD]: all, id, firstname, lastname, dob, lefteye, righteye, surgery.')
-    parser.add_argument('--remove',nargs=2, metavar='', type=str,
-        help='removes patient to database: --remove [FIELD] [CONTENT] ||| [FIELD]: id, firstname, lastname.')
-    parser.add_argument('--count', action='store_true',
-        help='returns a list of patients in database: --count')
-    
-    args = parser.parse_args()
-    
-    # print(args, sys.argv)
-    if args.add:
-        firstname = args.add[0]
-        lastname = args.add[1]
-        dob = args.add[2]
-        left_eye_template = args.add[3]
-        right_eye_template = args.add[4]
-        surgery = args.add[4]
-        add_patient(firstname, lastname, dob, left_eye_template, right_eye_template, surgery)
-    elif args.find:
-        field = args.find[0]
-        if field == 'all':
-            print(get_all_patients())
-        else:
-            content = args.find[1]
-            fields = {
+    fields = {
             "id": get_patient_by_id, 
             "firstname":get_patient_by_firstname, 
             "lastname": get_patient_by_lastname, 
@@ -362,6 +449,35 @@ if __name__=="__main__":
             "surgery": get_patient_by_surgery
                 }
             
+    parser = argparse.ArgumentParser(description='List the content of a folder')
+    parser.add_argument('--add',nargs=6, metavar='', type=str, 
+        help='adds patient to database: --add [FIRSTNAME] [LASTNAME] [DOB] [LEFT-EYE] [RIGHT-EYE] [SURGERY]')
+    parser.add_argument('--find',nargs="+", metavar='', type=str, 
+        help='returns a list of patient(s) from database: --find [FIELD] [CONTENT] ||| [FIELD]: all, id, firstname, lastname, dob, lefteye, righteye, surgery.')
+    parser.add_argument('--remove',nargs=2, metavar='', type=str,
+        help='removes patient to database: --remove [FIELD] [CONTENT] ||| [FIELD]: id, firstname, lastname.')
+    parser.add_argument('--update',nargs=3, metavar='', type=str,
+        help='updates patient\'s info to database: --remove [ID] [FIELD] [CONTENT]||| [FIELD]: id, firstname, lastname.')
+    parser.add_argument('--count', action='store_true',
+        help='returns a list of patients in database: --count')
+    
+    args = parser.parse_args()
+    
+    # print(args, sys.argv)
+    if args.add:    #-------------------------- ADD
+        firstname = args.add[0]
+        lastname = args.add[1]
+        dob = args.add[2]
+        left_eye_template = args.add[3]
+        right_eye_template = args.add[4]
+        surgery = args.add[4]
+        add_patient(firstname, lastname, dob, left_eye_template, right_eye_template, surgery)
+    elif args.find:     #-------------------------- FIND
+        field = args.find[0]
+        if field == 'all':
+            print(get_all_patients())
+        else:
+            content = args.find[1]
             if field not in fields:
                 print("not valid field. Supported fields: ", fields.keys())
             else:
@@ -369,8 +485,23 @@ if __name__=="__main__":
                     content = int(content)
                 print(fields[field](content))
     elif args.remove:
+        #TODO
         print(args.remove)
-    elif args.count:
+    elif args.update:   #-------------------------- UPDATE
+        #TODO: Testing
+        id = args.find[0]
+        field = args.find[1]
+        if field == 'all':
+            print(get_all_patients())
+        else:
+            content = args.find[2]
+            if field not in fields:
+                print("not valid field. Supported fields: ", fields.keys())
+            else:
+                if field == 'id':
+                    content = int(content)
+                print(fields[field](content)).
+    elif args.count:    #-------------------------- COUNT
         print(get_patient_count())
     else: 
         # do nothing
