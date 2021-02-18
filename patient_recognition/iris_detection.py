@@ -74,6 +74,7 @@ def center(robot=0, videoSource=0, sleep_time = .5):
                         and sum_y < int(height/2) + HEIGHT_THESHOLD 
                         and sum_y > int(height/2) - HEIGHT_THESHOLD):
                         EYE_CENTERED = True
+                        break
 
                     if(sum_x < int(width/2) - WIDTH_THRESHOLD):
                         print("move right")
@@ -114,7 +115,7 @@ def center(robot=0, videoSource=0, sleep_time = .5):
         print("error Center Function", OSError)
 
 
-def zoom(robot=0, videoSource=0, sleep_time = .2):
+def zoom_func(robot=0, videoSource=0, sleep_time = .2):
     SET_UP_COMPLETE = False
 
     #size of iris at 200mm away
@@ -174,6 +175,7 @@ def zoom(robot=0, videoSource=0, sleep_time = .2):
                         if (r >= FINAL_IRIS_SIZE or counter >= 5):
                             print("setup complete")
                             cv2.imwrite("Lastmoment.png", img)
+                            print(photoName)
                             cv2.imwrite(photoName, img)
                             SET_UP_COMPLETE = True
                             break
@@ -195,8 +197,11 @@ def zoom(robot=0, videoSource=0, sleep_time = .2):
 
 def moveRobotToEye(robot=0, videoSource=0):
     center(robot, videoSource, .3)
-    zoom(robot, videoSource)
+    print("after center-----------------")
+    zoom_func(robot, videoSource)
+    print("after zoom_func ---------------------")
     center(robot, videoSource, .15)
+    print("after center again ------------------")
     
     #cropping image 
     cap = cv2.VideoCapture(videoSource)
@@ -220,6 +225,8 @@ def moveRobotToEye(robot=0, videoSource=0):
     sharpFrame = cv2.addWeighted(img, 1.5, blurFrame, -0.5, 0)
     img = sharpFrame
 
+    # cap.release()
+    # cv2.destroyAllWindows()
 #     while(True):
 #         # Capture frame-by-frame
 #         ret, frame = cap.read()
