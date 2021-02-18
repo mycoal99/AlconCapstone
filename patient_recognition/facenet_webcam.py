@@ -11,7 +11,8 @@ class FaceDetector(object):
 # "rtsp://admin:qdEJv96DYtbd@192.168.1.30" for Ryan's ReolinkWebCam
 # videoSource = "rtsp://<username>:<password>@<staticIP>" for Michael's ReolinkWebCam
 # videoSource = "rtsp://<username>:<password>@<staticIP>
-    videoSources = {"native" : 0,
+    videoSources = {"surgical" : 0,
+                    "overhead" : 1,
                     "redding" : "rtsp://admin:qdEJv96DYtbd@192.168.1.30",
                     "iv" : "rtsp://admin:sharkboyseth@192.168.0.23",
                     "sj" : "rtsp://admin:<password>@<staticIP>"}
@@ -110,6 +111,8 @@ class FaceDetector(object):
             Run the FaceDetector and draw landmarks and boxes around detected faces
         """
         cap = cv2.VideoCapture(videoSource)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         i = 0
         while True:
             ret, frame = cap.read()
@@ -153,7 +156,7 @@ class FaceDetector(object):
     # videoSource = videoSources["iv"] for Michael's ReolinkWebCam
     # videoSource = videoSources["sj"] for Brent's ReolinkWebCam
     # debugging = False (default) for no video display, runs for 100 frames, True for video and box display.
-    def start(self, videoSource=videoSources["native"], debugging=False):
+    def start(self, videoSource=videoSources["surgical"], debugging=False):
         self.run(videoSource, debugging)
         maxActive = self.states[0]
         for state in self.states:
@@ -161,5 +164,6 @@ class FaceDetector(object):
                 if state[2] > 0.98:
                     maxActive = state
         return maxActive
-               
-# print(fcd.start())
+# mtcnn = MTCNN()
+# fd = FaceDetector(mtcnn)           
+# print(fd.start(debugging=True))

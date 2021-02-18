@@ -11,9 +11,14 @@ from kivymd.app import MDApp
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.label import MDLabel
 from kivy.core.camera import Camera
+from kivy.graphics.texture import Texture
+from kivy.uix.image import Image
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
+# from kivymd.toast.kivytoast.kivytoast import Toast
+from kivymd.toast.kivytoast.kivytoast import toast
 from patient_db import get_patient_by_eye_template
 from iris_detection import moveRobotToEye
+from cv2 import cv2
 
 class Gui(Widget):
     camIsShown = BooleanProperty(True)
@@ -28,40 +33,36 @@ class Gui(Widget):
     robot = None
     def start(self, button):
         # Lines up camera with patient.
-        robot = Robot()
+        self.robot = Robot()
         if self.ids['leftEyeToggle'].state == "down":   
-            moveRobotToPatient(robot, True, getPatient(), 1)
+            moveRobotToPatient(self.robot, True, getPatient("overhead"), 1)
         elif self.ids['rightEyeToggle'].state == "down":
-            moveRobotToPatient(robot, False, getPatient(), 1)
+            moveRobotToPatient(self.robot, False, getPatient("overhead"), 1)
         else:
+            toast(text="Please select eye")
             print("Please select eye")
     def focus(self, button):
         # Focuses surgical camera on patient's eye.
         camera = self.ids['surgery_video']
-        camera.export_to_png("eye_template.png")
-        camera.play = False
-        camera._camera.stop()
+        ret, template = camera.capture.read()
         if self.ids['leftEyeToggle'].state == "down":   
-            get_patient_by_eye_template("left", "eye_template.png")
+            get_patient_by_eye_template("left", template)
         elif self.ids['rightEyeToggle'].state == "down":
-            get_patient_by_eye_template("right", "eye_template.png")
+            get_patient_by_eye_template("right", template)
         else:
+            toast("Please select Eye")
             print("Please select eye")
-        # get_patient_by_eye_template("left", "eye_template.png")
         self.camIsShown = False
-        # moveRobotToEye(robot, 0)
+        camera.capture.release()
+        moveRobotToEye(self.robot, 0)
+        camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
-        pass
     def reset(self, button):
         # Resets Robot back to initial position
-        # robot.initial()
+        self.robot.initial()
         camera = self.ids['surgery_video']
-        camera._camera.start()
+        camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
-        pass
-    def switchEye(self, button):
-        # Switches from left eye to right eye
-        pass
 
 
 class GuiApp(MDApp):
@@ -82,10 +83,28 @@ class GuiApp(MDApp):
         return gui
 
 
-class myToggleButton(MDToggleButton, MDRaisedButton):
+class MyToggleButton(MDToggleButton, MDRaisedButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.background_down = self.theme_cls.primary_dark
+
+class KivyCamera(Image):
+    def __init__(self, **kwargs):
+        super(KivyCamera, self).__init__(**kwargs)
+        self.capture = cv2.VideoCapture(0)
+        Clock.schedule_interval(self.update, 1.0 / 60)
+
+    def update(self, dt):
+        ret, frame = self.capture.read()
+        if ret:
+            # convert it to texture
+            buf1 = cv2.flip(frame, 0)
+            buf = buf1.tostring()
+            image_texture = Texture.create(
+                size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+            # display image from the texture
+            self.texture = image_texture
 
 if __name__ == "__main__":
     GuiApp().run()

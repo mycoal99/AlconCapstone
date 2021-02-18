@@ -44,11 +44,11 @@ if not cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='
                     right_eye_template text,
                     surgery text
                 )""")
-  if not curr.execute("SELECT count(*) FROM sqlite_master WHERE type='index' and name='ix_patients_lastname_firstname').fetchall():
-    curr.execute("""
-                CREATE INDEX ix_patients_lastname_firstname ON patients (lastname, firstname);
-                CREATE INDEX ix_patiients_surgery ON patients (surgery);
-                """)
+#   if not curr.execute("SELECT count(*) FROM sqlite_master WHERE type='index' and name='ix_patients_lastname_firstname').fetchall():
+#     curr.execute("""
+#                 CREATE INDEX ix_patients_lastname_firstname ON patients (lastname, firstname);
+#                 CREATE INDEX ix_patiients_surgery ON patients (surgery);
+#                 """)
 
 connect.close()
 
@@ -346,6 +346,12 @@ def get_patient_by_right_eye_template(right_eye_template):
     connect.close()
     return patient_list
 
+def get_patient_by_eye_template(eye_string, eye_template):
+    if eye_string == "left":
+        get_patient_by_left_eye_template(eye_template)
+    elif eye_string == "right":
+        get_patient_by_right_eye_template(eye_template)
+
 def get_patient_by_surgery(surgery:str):
     '''
     Returns a list of patients by the surgery scheduled for the patient.
@@ -500,7 +506,7 @@ if __name__=="__main__":
             else:
                 if field == 'id':
                     content = int(content)
-                print(fields[field](content)).
+                print(fields[field](content))
     elif args.count:    #-------------------------- COUNT
         print(get_patient_count())
     else: 

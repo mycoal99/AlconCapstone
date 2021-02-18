@@ -1,14 +1,19 @@
 #:kivy 2.0.0
-#:import myToggleButton gui.myToggleButton
+#:import MyToggleButton gui.MyToggleButton
 <Gui>:
     MDFloatLayout:
         size: root.size
-        # rows: 2
-        # cols: 2
-        # orientation: "rl-tb"
-        Camera:
+        # Camera:
+        #     id: surgery_camera
+        #     index: 0
+        #     # resolution: (1280, 720)
+        #     allow_stretch: True
+        #     size_hint: 0.77, 0.84
+        #     pos_hint: {"x":0.01, "y":0.15}
+        #     opacity: 1 if root.usingCam else 0
+        KivyCamera:
             id: surgery_video
-            # index: 1
+            resolution: (3840, 2160)
             allow_stretch: True
             size_hint: 0.77, 0.84
             pos_hint: {"x":0.01, "y":0.15}
@@ -19,7 +24,7 @@
             font_style: "H4"
             font_size: "144sp"
             id: loadingLabel
-            text: "Loading..."
+            text: "Optimizing..."
             text_color: app.theme_cls.accent_color
             opacity: 0 if root.camIsShown else 1
         MDCard:
@@ -64,18 +69,23 @@
                     id: surgicalEyeLabel
                     text: root.eye_label
                     text_color: app.theme_cls.accent_color
-    # MDBoxLayout:
-    #     adaptive_size: True
-        myToggleButton:
-            id: leftEyeToggle
-            text: "Left Eye"
-            group: "eyeToggle"
-            pos_hint: {"x":0.79, "y":0.20}
-        myToggleButton:
-            id: rightEyeToggle
-            text: "Right Eye"
-            group: "eyeToggle"
-            pos_hint: {"x":0.85, "y":0.20}
+        MDBoxLayout:
+            adaptive_size: True
+            pos_hint: {"x":0.79, "y":0.17}
+            size_hint: 0.20,0.05
+            MyToggleButton:
+                id: leftEyeToggle
+                text: "Left Eye"
+                group: "eyeToggle"
+                size_hint: 1,1
+                # pos_hint: {"x":0.79, "y":0.20}
+            MyToggleButton:
+                index: 1
+                id: rightEyeToggle
+                text: "Right Eye"
+                group: "eyeToggle"
+                size_hint: 1,1
+                # pos_hint: {"x":0.85, "y":0.20}
         MDFillRoundFlatIconButton:
             id: start_button
             text: "Start"
