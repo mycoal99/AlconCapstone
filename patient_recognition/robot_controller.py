@@ -94,11 +94,11 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
         # Get coordinates of patient's correct eye
         # potentially the wrong eye
         if (left):
-            eyeX = patient[0][0]
-            eyeY = patient[0][1]
+            eyeX = patient[0][0] / 640 * 1920
+            eyeY = patient[0][1] / 480 * 1080
         else:
-            eyeX = patient[1][0]
-            eyeY = patient[1][1]
+            eyeX = patient[1][0] / 640 * 1920
+            eyeY = patient[1][1] / 480 * 1080
 
         # Calculate the distance between the robot and the eye
         # Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
@@ -172,8 +172,8 @@ def getPatient(source):
     fd = FaceDetector(mtcnn)
     cap = cv2.VideoCapture(1)
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     ret, frame = cap.read()
 
     maxImageHeight = frame.shape[0]
@@ -217,7 +217,7 @@ class Robot(object):
         self.__yCoordinate = 0
         self.__controller = CapstoneClient()
         self.__controller.start()
-        self.__controller.sendRobotCommand(self.__controller.commands["initial"])
+        # self.__controller.sendRobotCommand(self.__controller.commands["initial"])
 
     def updateCoords(self, videoSource):
         qrCode = []

@@ -16,9 +16,10 @@ from kivy.uix.image import Image
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 # from kivymd.toast.kivytoast.kivytoast import Toast
 from kivymd.toast.kivytoast.kivytoast import toast
-from patient_db import get_patient_by_eye_template
+# from patient_db import get_patient_by_eye_template
 from iris_detection import moveRobotToEye
 from cv2 import cv2
+import _thread
 
 class Gui(Widget):
     camIsShown = BooleanProperty(True)
@@ -34,10 +35,12 @@ class Gui(Widget):
     def start(self, button):
         # Lines up camera with patient.
         self.robot = Robot()
+        _thread.start_new_thread(self.robot.initial())
+        # self.robot.initial()
         if self.ids['leftEyeToggle'].state == "down":   
-            moveRobotToPatient(self.robot, True, getPatient("overhead"), 1)
+            _thread.start_new_thread(moveRobotToPatient(self.robot, True, getPatient("overhead"), 1))
         elif self.ids['rightEyeToggle'].state == "down":
-            moveRobotToPatient(self.robot, False, getPatient("overhead"), 1)
+            _thread.start_new_thread(moveRobotToPatient(self.robot, False, getPatient("overhead"), 1))
         else:
             toast(text="Please select eye")
             print("Please select eye")
@@ -45,22 +48,25 @@ class Gui(Widget):
         # Focuses surgical camera on patient's eye.
         camera = self.ids['surgery_video']
         ret, template = camera.capture.read()
-        if self.ids['leftEyeToggle'].state == "down":   
-            get_patient_by_eye_template("left", template)
-        elif self.ids['rightEyeToggle'].state == "down":
-            get_patient_by_eye_template("right", template)
-        else:
-            toast("Please select Eye")
-            print("Please select eye")
+        # if self.ids['leftEyeToggle'].state == "down":   
+        #     get_patient_by_eye_template("left", template)
+        # elif self.ids['rightEyeToggle'].state == "down":
+        #     get_patient_by_eye_template("right", template)
+        # else:
+        #     toast("Please select Eye")
+        #     print("Please select eye")
         self.camIsShown = False
         camera.capture.release()
         moveRobotToEye(self.robot, 0)
         camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
+        camera.clock.cancel()
+        Clock.schedule_interval(camera.update2, 1.0 / 60)
     def reset(self, button):
         # Resets Robot back to initial position
-        self.robot.initial()
         camera = self.ids['surgery_video']
+        camera.capture.release()
+        self.robot.initial()
         camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
 
@@ -92,10 +98,35 @@ class KivyCamera(Image):
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
         self.capture = cv2.VideoCapture(0)
-        Clock.schedule_interval(self.update, 1.0 / 60)
+        self.clock = Clock.schedule_interval(self.update, 1.0 / 60)
 
     def update(self, dt):
         ret, frame = self.capture.read()
+        if ret:
+            # convert it to texture
+            buf1 = cv2.flip(frame, 0)
+            buf = buf1.tostring()
+            image_texture = Texture.create(
+                size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+            # display image from the texture
+            self.texture = image_texture
+    
+    def update2(self, dt):
+        ret, frame = self.capture.read()
+        height, width, channels = frame.shape
+        # (480, 640, 3)
+        zoom = 1/3
+        y = int(height * zoom)
+        y1 = int(height * (1 - zoom))
+        x = int(width * zoom)
+        x1 = int(width * (1 - zoom))
+        
+        img = frame[y: y1, x: x1]
+        img = cv2.resize(img, (width, height))
+
+        blurFrame = cv2.GaussianBlur(img, (21,21), 5)
+        frame = cv2.addWeighted(img, 1.5, blurFrame, -0.5, 0)
         if ret:
             # convert it to texture
             buf1 = cv2.flip(frame, 0)

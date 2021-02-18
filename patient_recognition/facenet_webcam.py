@@ -111,8 +111,8 @@ class FaceDetector(object):
             Run the FaceDetector and draw landmarks and boxes around detected faces
         """
         cap = cv2.VideoCapture(videoSource)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         i = 0
         while True:
             ret, frame = cap.read()

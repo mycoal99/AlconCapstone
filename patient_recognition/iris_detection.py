@@ -98,9 +98,9 @@ def center(robot=0, videoSource=0, sleep_time = .5):
                         robot.stop()
                         
             #save image
-            cv2.imwrite(photoName, img)
+            # cv2.imwrite(photoName, img)
             photoNum += 1
-            cv2.imshow("camera", img)
+            # cv2.imshow("camera", img)
             cv2.waitKey(15)
 
         cap.release()
@@ -171,15 +171,15 @@ def zoom(robot=0, videoSource=0, sleep_time = .2):
 
                         if (r >= FINAL_IRIS_SIZE or counter >= 5):
                             print("setup complete")
-                            cv2.imwrite("Lastmoment.png", img)
-                            cv2.imwrite(photoName, img)
+                            # cv2.imwrite("Lastmoment.png", img)
+                            # cv2.imwrite(photoName, img)
                             SET_UP_COMPLETE = True
                             break
 
             #save image
-            cv2.imwrite(photoName, img)
+            # cv2.imwrite(photoName, img)
             photoNum += 1
-            cv2.imshow("camera", img)
+            # cv2.imshow("camera", img)
             cv2.waitKey(10)
 
         cap.release()
@@ -240,9 +240,9 @@ def moveRobotToEye(robot=0, videoSource=0):
 #         # Our operations on the frame come here
 
 #         # Display the resulting frame
-#         #cv2.imshow('frame',img[::-1])
-#         cv2.imshow('img',sharpFrame)
-#         cv2.imshow('frame',frame)
+        #cv2.imshow('frame',img[::-1])
+        # cv2.imshow('img',sharpFrame)
+        # cv2.imshow('frame',frame)
 #         if cv2.waitKey(1) & 0xFF == ord('q'):
 #             break
 
