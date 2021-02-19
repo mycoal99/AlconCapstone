@@ -24,6 +24,10 @@ import _thread
 class Gui(Widget):
     camIsShown = BooleanProperty(True)
     camera = ObjectProperty(None)
+    camera.capture = cv2.VideoCapture(0)
+    camera.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+    camera.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+    self.camIsShown = True
     start_button = ObjectProperty(None)
     focus_button = ObjectProperty(None)
     reset_button = ObjectProperty(None)
@@ -48,7 +52,7 @@ class Gui(Widget):
             print("Please select eye")
     def focus(self, button):
         # Focuses surgical camera on patient's eye.
-        camera = self.ids['surgery_video']
+        #camera = self.ids['surgery_video']
         ret, template = camera.capture.read()
         # if self.ids['leftEyeToggle'].state == "down":   
         #     get_patient_by_eye_template("left", template)
@@ -62,6 +66,8 @@ class Gui(Widget):
         cv2.destroyAllWindows()
         moveRobotToEye(self.robot, 0)
         camera.capture = cv2.VideoCapture(0)
+        camera.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        camera.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         self.camIsShown = True
         camera.clock.cancel()
         Clock.schedule_interval(camera.update2, 1.0/60)
@@ -69,9 +75,9 @@ class Gui(Widget):
     def reset(self, button):
         # Resets Robot back to initial position
         self.robot.initial()
-        camera = self.ids['surgery_video']
-        camera.capture = cv2.VideoCapture(0)
-        self.camIsShown = True
+        # camera = self.ids['surgery_video']
+        # camera.capture = cv2.VideoCapture(0)
+        # self.camIsShown = True
 
 
 class GuiApp(MDApp):
@@ -81,6 +87,10 @@ class GuiApp(MDApp):
         self.theme_cls.accent_palette = "Cyan"
         self.theme_cls.accent_hue = "A200"
         self.theme_cls.theme_style = "Dark"
+        self.overheadCam = cv2.VideoCapture(1)
+        self.overheadCam.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.overheadCam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
         gui = Gui()
         # whichEye = Robot.getWhichEye()
         # eyeImage = Robot.getEyeImage()
@@ -100,7 +110,7 @@ class MyToggleButton(MDToggleButton, MDRaisedButton):
 class KivyCamera(Image):
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
-        self.capture = cv2.VideoCapture(0)
+        # self.capture = cv2.VideoCapture(0)
         self.clock = Clock.schedule_interval(self.update, 1.0 / 60)
 
     def update(self, dt):
@@ -116,8 +126,6 @@ class KivyCamera(Image):
             self.texture = image_texture
 
     def update2(self, dt):
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
 
         ret, frame = self.capture.read()
         height, width, channels = frame.shape
