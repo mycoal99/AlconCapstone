@@ -106,13 +106,13 @@ class FaceDetector(object):
 
         return frame
 
-    def run(self, cap=cv2.VideoCapture(1), debugging=True):
+    def run(self, videoSource=0, debugging=True):
         """
             Run the FaceDetector and draw landmarks and boxes around detected faces
         """
-        # cap = cv2.VideoCapture(videoSource)
-        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        cap = cv2.VideoCapture(videoSource)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         i = 0
         while True:
             ret, frame = cap.read()
@@ -156,8 +156,8 @@ class FaceDetector(object):
     # videoSource = videoSources["iv"] for Michael's ReolinkWebCam
     # videoSource = videoSources["sj"] for Brent's ReolinkWebCam
     # debugging = False (default) for no video display, runs for 100 frames, True for video and box display.
-    def start(self, cap=cv2.VideoCapture(videoSources["overhead"]), debugging=False):
-        self.run(cap, debugging)
+    def start(self, videoSource=videoSources["surgical"], debugging=False):
+        self.run(videoSource, debugging)
         maxActive = self.states[0]
         for state in self.states:
             if state[3] > maxActive[3]:

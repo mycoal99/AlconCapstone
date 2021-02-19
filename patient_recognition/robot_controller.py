@@ -16,22 +16,22 @@ from CapstoneClient import CapstoneClient
 def calc2DDistance(x1,y1,x2,y2):
     return math.sqrt(abs(x2-x1)**2 + abs(y2-y1)**2)
 
-def moveRobotToPatient(robot=0, left=False, patient=[[]], capc=v2.VideoCapture(1)):
+def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_time=2.5):
         # Assign coordinates of QRCode to Robot object\
+        print(videoSource)
+        cap = cv2.VideoCapture(videoSource)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         robot.updateCoords(cap)
 
         # Get coordinates of patient's correct eye
         # potentially the wrong eye
         if (left):
-            # eyeX = (patient[0][0] / 640) * 1920
-            # eyeY = (patient[0][1] / 480) * 1080
-            eyeX = patient[0][0]
-            eyeY = patient[0][1]
+            eyeX = (patient[0][0] / 640) * 1920
+            eyeY = (patient[0][1] / 480) * 1080
         else:
-            # eyeX = (patient[1][0] / 640) * 1920
-            # eyeY = (patient[1][1] / 480) * 1080
-            eyeX = patient[1][0]
-            eyeY = patient[1][1]
+            eyeX = (patient[1][0] / 640) * 1920
+            eyeY = (patient[1][1] / 480) * 1080
 
         # Calculate the distance between the robot and the eye
         # Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
@@ -44,7 +44,104 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], capc=v2.VideoCapture(1
         # If the distance to the eye is less than 15 pixels, the function returns
         # Once the robot stops, the newDistance is set to the baseline distance, and the robot begins again in a new direction until it returns.
         
-        final_distance_to_eye = 15
+        final_distance_to_eye = 20
+
+        robot.right()
+        time.sleep(.7)
+        robot.stop()
+        distanceToEye = newDistanceToEye
+        robot.updateCoords(cap)
+        newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+
+        while newDistanceToEye <= distanceToEye:
+            print("newDistanceToEye:", newDistanceToEye, "\n")
+            calc_sleep_time = newDistanceToEye/60
+            print("sleep_time:", calc_sleep_time, "\n")
+            robot.right()
+            time.sleep(calc_sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(cap)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+            if newDistanceToEye < final_distance_to_eye:
+                cap.release()
+                cv2.destroyAllWindows()
+                return True
+        distanceToEye = newDistanceToEye
+
+        robot.forward()
+        time.sleep(.7)
+        robot.stop()
+        distanceToEye = newDistanceToEye
+        robot.updateCoords(cap)
+        newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+
+        while newDistanceToEye <= distanceToEye:
+            # print("forward while loop 1")
+            print("newDistanceToEye:", newDistanceToEye, "\n")
+            calc_sleep_time = newDistanceToEye/60
+            print("sleep_time:", calc_sleep_time, "\n")
+            robot.forward()
+            time.sleep(calc_sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(cap)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+
+            if newDistanceToEye < final_distance_to_eye:
+                cap.release()
+                cv2.destroyAllWindows()
+                return True
+        distanceToEye = newDistanceToEye
+
+        robot.left()
+        time.sleep(.7)
+        robot.stop()
+        distanceToEye = newDistanceToEye
+        robot.updateCoords(cap)
+        newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)        
+
+        while newDistanceToEye <= distanceToEye:
+            print("newDistanceToEye:", newDistanceToEye, "\n")
+            calc_sleep_time = newDistanceToEye/60
+            print("sleep_time:", calc_sleep_time, "\n")
+            robot.left()
+            time.sleep(calc_sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(cap)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+
+            if newDistanceToEye < final_distance_to_eye:
+                cap.release()
+                cv2.destroyAllWindows()
+                return True
+        distanceToEye = newDistanceToEye
+
+        robot.backward()
+        time.sleep(.7)
+        robot.stop()
+        distanceToEye = newDistanceToEye
+        robot.updateCoords(cap)
+        newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+
+        while newDistanceToEye <= distanceToEye:
+            # print("backward while loop 1")
+            print("newDistanceToEye:", newDistanceToEye, "\n")
+            calc_sleep_time = newDistanceToEye/60
+            print("sleep_time:", calc_sleep_time, "\n")
+            robot.backward()
+            time.sleep(calc_sleep_time)
+            robot.stop()
+            distanceToEye = newDistanceToEye
+            robot.updateCoords(cap)
+            newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
+
+            if newDistanceToEye < final_distance_to_eye:
+                cap.release()
+                cv2.destroyAllWindows()
+                return True
+        distanceToEye = newDistanceToEye
 
         robot.right()
         time.sleep(.7)
@@ -145,24 +242,24 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], capc=v2.VideoCapture(1
 
         cap.release()
         cv2.destroyAllWindows()
-        return moveRobotToPatient(robot, left, patient, cap, sleep_time)
+        return moveRobotToPatient(robot, left, patient, videoSource, sleep_time)
 
-def getPatient(cap=cv2.VideoCapture(1)):
+def getPatient(source):
     mtcnn = MTCNN()
     fd = FaceDetector(mtcnn)
-    # cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(1)
 
-    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)s
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     ret, frame = cap.read()
 
     maxImageHeight = frame.shape[0]
     maxImageWidth = frame.shape[1]
 
-    # cap.release()
-    # cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
 
-    patient = fd.start(cap, False)
+    patient = fd.start(fd.videoSources[source], False)
     orientation = patient[4]
     if orientation == 0:
         pass
@@ -344,11 +441,11 @@ class Robot(object):
     #         p0 = goodNew.reshape(-1,1,2)
     #     cap.release()
 
-# if __name__ == "__main__":
-#     robot = Robot()
-#     robot.initial()s
-#     print("Robot Initialized")
-#     time.sleep(3)
-#     patient = getPatient("overhead")
-#     print("Patient Identified")
-#     moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1)
+if __name__ == "__main__":
+    robot = Robot()
+    robot.initial()
+    print("Robot Initialized")
+    time.sleep(3)
+    patient = getPatient("overhead")
+    print("Patient Identified")
+    moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1)
