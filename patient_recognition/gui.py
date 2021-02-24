@@ -16,10 +16,12 @@ from kivy.uix.image import Image
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 # from kivymd.toast.kivytoast.kivytoast import Toast
 from kivymd.toast.kivytoast.kivytoast import toast
-# from patient_db import get_patient_by_eye_template
+from patient_db import get_patient_by_eye_template
 from iris_detection import moveRobotToEye
 from cv2 import cv2
 import _thread
+from verify import verify
+import time
 
 class Gui(Widget):
     camIsShown = BooleanProperty(True)
@@ -32,6 +34,7 @@ class Gui(Widget):
     surgery_label = StringProperty()
     eye_label = StringProperty()
     robot = None
+
     def start(self, button):
         # Lines up camera with patient.
         self.robot = Robot()
@@ -46,33 +49,49 @@ class Gui(Widget):
         else:
             toast(text="Please select eye")
             print("Please select eye")
+            
     def focus(self, button):
-        # Focuses surgical camera on patient's eye.
         camera = self.ids['surgery_video']
-        ret, template = camera.capture.read()
-        # if self.ids['leftEyeToggle'].state == "down":   
-        #     get_patient_by_eye_template("left", template)
-        # elif self.ids['rightEyeToggle'].state == "down":
-        #     get_patient_by_eye_template("right", template)
-        # else:
-        #     toast("Please select Eye")
-        #     print("Please select eye")
+        # Focuses surgical camera on patient's eye.
+        self.robot = Robot()
         self.camIsShown = False
         camera.capture.release()
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
+
         moveRobotToEye(self.robot, 0)
+        toast("after moveRobotToEye 0")
         camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
+        time.sleep(3)
+        ret, templateImage = camera.capture.read()
+        patientData = {}
+        cv2.imwrite("eye_template.png", templateImage)
+        print("SHAPE >>>>>>>>>>>>>>>>>>", templateImage.shape)
+        if self.ids['leftEyeToggle'].state == "down":   
+            patientData = get_patient_by_eye_template("left", verify(templateImage))
+        elif self.ids['rightEyeToggle'].state == "down":
+            patientData = get_patient_by_eye_template("right",  verify(templateImage))
+        else:
+            toast("Please select Eye")
+            print("Please select eye")
+        print("PATIENT DATA >>>>>>>", patientData)
+        self.populatePatientData(patientData)
+        toast(">>>> populate patient")
         camera.clock.cancel()
         Clock.schedule_interval(camera.update2, 1.0/60)
 
     def reset(self, button):
-        # Resets Robot back to initial position
+        # Resets Robot back to initial position  
         self.robot.initial()
         camera = self.ids['surgery_video']
         camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
-
+        
+    def populatePatientData(self, patientData):
+        self.name_label = "Name:  {} {}".format(patientData["firstname"], patientData["lastname"])
+        self.dob_label = "Date of Birth: {}".format(patientData["DOB"])
+        self.surgery_label = "Surgery Type:  {}".format(patientData["surgery"])
+        # self.eye_label = "Surgery Eye:  {}".format("whichEye")
 
 class GuiApp(MDApp):
     def build(self):
@@ -101,6 +120,8 @@ class KivyCamera(Image):
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
         self.capture = cv2.VideoCapture(0)
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         self.clock = Clock.schedule_interval(self.update, 1.0 / 60)
 
     def update(self, dt):
@@ -116,13 +137,10 @@ class KivyCamera(Image):
             self.texture = image_texture
 
     def update2(self, dt):
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
-
         ret, frame = self.capture.read()
         height, width, channels = frame.shape
 
-        zoom = 1/3
+        zoom = 1/10
         y = int(height * zoom)
         y1 = int(height * (1 - zoom))
         x = int(width * zoom)
@@ -132,6 +150,7 @@ class KivyCamera(Image):
         img = cv2.resize(img, (width, height))
         blurFrame = cv2.GaussianBlur(img, (21,21), 5)
         frame = cv2.addWeighted(img, 1.5, blurFrame, -0.5, 0)
+
         if ret:
             # convert it to texture
             buf1 = cv2.flip(frame, 0)

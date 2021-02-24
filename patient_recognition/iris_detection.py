@@ -15,20 +15,16 @@ from robot_controller import Robot
         - only moving the robot arm
 '''
 
-def center(robot=0, videoSource=0, sleep_time = .5):
+def center(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
     EYE_CENTERED = False
     #thesholds for when the eye is centered enough
-    WIDTH_THRESHOLD = 15
-    HEIGHT_THESHOLD = 10
+    WIDTH_THRESHOLD = 20
+    HEIGHT_THESHOLD = 15
 
     #begin live stream
     #set surgical camera as videoSource
-    cap = cv2.VideoCapture(videoSource) 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     ret, img = cap.read()
     height, width, channels = img.shape
-    photoNum = 0
 
     try:
         while not EYE_CENTERED:
@@ -91,16 +87,13 @@ def center(robot=0, videoSource=0, sleep_time = .5):
                         
             cv2.waitKey(15)
 
-        cap.release()
-        cv2.destroyAllWindows()
-
 
     except OSError:
         print("EXCEPTION")
         print("error Center Function", OSError)
 
 
-def zoomInEye(robot=0, videoSource=0, sleep_time = .2):
+def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .3):
     SET_UP_COMPLETE = False
 
  #size of iris at 200mm away
@@ -108,9 +101,7 @@ def zoomInEye(robot=0, videoSource=0, sleep_time = .2):
 
     #begin live stream
     #set surgical camera as videoSource
-    cap = cv2.VideoCapture(videoSource) 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
     ret, img = cap.read()
     height, width, channels = img.shape
     counter = 0
@@ -167,13 +158,10 @@ def zoomInEye(robot=0, videoSource=0, sleep_time = .2):
                             break
 
             #save image
-            cv2.imwrite(photoName, img)
-            photoNum += 1
-            cv2.imshow("camera", img)
+            # cv2.imwrite(photoName, img)
+            # photoNum += 1
+            # cv2.imshow("camera", img)
             cv2.waitKey(10)
-
-        cap.release()
-        cv2.destroyAllWindows()
 
     except OSError:
         print("EXCEPTION")
@@ -181,9 +169,14 @@ def zoomInEye(robot=0, videoSource=0, sleep_time = .2):
 
 
 def moveRobotToEye(robot=0, videoSource=0):
-    center(robot, videoSource, .3)
-    zoomInEye(robot, videoSource)
-    center(robot, videoSource, .15)
+    cap = cv2.VideoCapture(videoSource) 
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    center(robot, cap, .2)
+    zoomInEye(robot, cap)
+    center(robot, cap, .15)
+    cap.release()
+    cv2.destroyAllWindows()
 
 '''
     Assumptions:
@@ -191,7 +184,7 @@ def moveRobotToEye(robot=0, videoSource=0):
 '''
 
 
-if __name__ == "__main__":
-    # #potentially use patient detention again and zoomInEye in from there
-    robot = Robot()
-    moveRobotToEye(robot=robot, videoSource=0)
+# if __name__ == "__main__":
+#     # #potentially use patient detention again and zoomInEye in from there
+#     robot = Robot()
+#     moveRobotToEye(robot=robot, videoSource=0)
