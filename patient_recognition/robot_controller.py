@@ -86,19 +86,19 @@ from CapstoneClient import CapstoneClient
 def calc2DDistance(x1,y1,x2,y2):
     return math.sqrt(abs(x2-x1)**2 + abs(y2-y1)**2)
 
-def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_time=2.5):
+def moveRobotToPatient(robot=0, left=False, patient=[[]], cap=0, sleep_time=2.5):
         # Assign coordinates of QRCode to Robot object\
-        print(videoSource)
-        robot.updateCoords(videoSource)
+        print(cap)
+        robot.updateCoords(cap)
 
         # Get coordinates of patient's correct eye
         # potentially the wrong eye
         if (left):
-            eyeX = patient[0][0] / 640 * 1920
-            eyeY = patient[0][1] / 480 * 1080
+            eyeX = patient[0][0] / 640
+            eyeY = patient[0][1] / 480
         else:
-            eyeX = patient[1][0] / 640 * 1920
-            eyeY = patient[1][1] / 480 * 1080
+            eyeX = patient[1][0] / 640
+            eyeY = patient[1][1] / 480
 
         # Calculate the distance between the robot and the eye
         # Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
@@ -119,7 +119,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             time.sleep(sleep_time)
             robot.stop()
             distanceToEye = newDistanceToEye
-            robot.updateCoords(videoSource)
+            robot.updateCoords(cap)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
             #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
@@ -132,7 +132,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             time.sleep(sleep_time)
             robot.stop()
             distanceToEye = newDistanceToEye
-            robot.updateCoords(videoSource)
+            robot.updateCoords(cap)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
             #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
@@ -145,7 +145,7 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             time.sleep(sleep_time)
             robot.stop()
             distanceToEye = newDistanceToEye
-            robot.updateCoords(videoSource)
+            robot.updateCoords(cap)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
             #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
@@ -158,30 +158,32 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], videoSource=0, sleep_t
             time.sleep(sleep_time)
             robot.stop()
             distanceToEye = newDistanceToEye
-            robot.updateCoords(videoSource)
+            robot.updateCoords(cap)
             newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
             #sleep_time = newDistanceToEye/30
             if newDistanceToEye < final_distance_to_eye:
+                # cap.release()
+                # cv2.destroyAllWindows()
                 return True
         distanceToEye = newDistanceToEye
 
         return False
 
-def getPatient(source):
+def getPatient(cap):
     mtcnn = MTCNN()
     fd = FaceDetector(mtcnn)
-    cap = cv2.VideoCapture(1)
+    # cap = cv2.VideoCapture(1)
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     ret, frame = cap.read()
 
     maxImageHeight = frame.shape[0]
     maxImageWidth = frame.shape[1]
 
-    cap.release()
+    # cap.release()
 
-    patient = fd.start(fd.videoSources[source], False)
+    patient = fd.start(cap, False)
     orientation = patient[4]
     if orientation == 0:
         pass
@@ -215,21 +217,17 @@ class Robot(object):
     def __init__(self):
         self.__xCoordinate = 0
         self.__yCoordinate = 0
-        self.__controller = CapstoneClient()
-        self.__controller.start()
+        # self.__controller = CapstoneClient()
+        # self.__controller.start()
         # self.__controller.sendRobotCommand(self.__controller.commands["initial"])
 
-    def updateCoords(self, videoSource):
+    def updateCoords(self, cap):
         qrCode = []
 
         # while(not qrCode):
-        #     qrCode = Robot.detectQRCode(videoSource)
+        #     qrCode = Robot.detectQRCode(cap)
 
         # print(qrCode)
-
-        cap = cv2.VideoCapture(videoSource)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
         FOUND_QR = False
         while(not FOUND_QR):
@@ -267,24 +265,54 @@ class Robot(object):
         self.setX(centerX)
         self.setY(centerY)
 
-    # def detectQRCode(videoSource):
-    #     cap = cv2.VideoCapture(videoSource)
-    #     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    #     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    #     ret, frame = cap.read()
+    def detectQRCode(self, cap, frame, picCapture):
+        qrCode = []
 
-    #     cap.release()
+        # while(not qrCode):
+        #     qrCode = Robot.detectQRCode(videoSource)
 
-    #     blurFrame = cv2.GaussianBlur(frame, (21,21), 5)
-    #     sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
-    #     qrCode2 = []
-    #     qrCode = pyzbar.decode(sharpFrame)
-    #     cv2.imshow("sharp", sharpFrame)
-    #     cv2.imshow("frame", frame)
+        # print(qrCode)
 
-    #     cv2.waitKey()
+        FOUND_QR = False
+        # while(len(qrCode) == 0):        
+            
+        blurFrame = cv2.GaussianBlur(frame, (21,21), 5)
+        sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
+        gray = cv2.cvtColor(sharpFrame, cv2.COLOR_BGR2GRAY)
 
-    #     return qrCode2
+        x = int(self.getX())
+        y = int(self.getY())
+        cv2.circle(sharpFrame, (x, y), 1, (0, 255, 0), 2)
+        cv2.circle(sharpFrame, (y, x), 1, (255, 255, 0), 2)
+
+        #gray[gray>150] = 255
+        # cv2.imshow('frame', sharpFrame)
+        qrCode = pyzbar.decode(gray)
+        if(len(qrCode) > 0):
+            # print("zbar:", qrCode)
+            # print(len(qrCode[0].polygon))
+            if(len(qrCode[0].polygon) == 4):
+                FOUND_QR = True
+
+        if (not FOUND_QR):
+            # print("qrNotFound")
+            # picCapture += 1
+            # cv2.imshow('QR Detection', frame)
+            # ret, frame = cap.read()
+            # self.detectQRCode(cap, frame, picCapture)
+            pass
+
+        elif FOUND_QR:
+            # print("qrFound")
+            (topLeft,topRight,bottomRight,bottomLeft) = qrCode[0].polygon
+            cv2.rectangle(frame, (topLeft.x, topLeft.y), (bottomRight.x, bottomRight.y), (255, 0, 0), thickness=2)
+
+            name = "./"+ str(picCapture) + ".png"
+            cv2.imwrite(name, frame)
+            # picCapture += 1
+            cv2.imshow('QR Detection', frame)
+            # ret, frame = cap.read()
+            # self.detectQRCode(cap, frame, picCapture)
 
     def setX(self, x):
         self.__xCoordinate = x
@@ -414,12 +442,16 @@ if __name__ == "__main__":
     # print("after fd start")
     robot = Robot()
     # robot.initial()
-    print("Robot Initialized")
-    time.sleep(3)
-    patient = getPatient("overhead")
-    print("Patient Identified")
-    moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1)
-    # moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1, sleep_time=1.5)
+    cap = cv2.VideoCapture("patientDetectionColored.avi")
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    for i in range(1300):
+        ret, frame = cap.read()
+        picCapture = i
+        robot.detectQRCode(cap, frame, picCapture)
+    cap.release()
+    cv2.destroyAllWindows()
+    # moveRobotToPatient(robot=robot, left=False, patient=patient, cap, sleep_time=1.5)
     # robot.forward()
     # time.sleep(.7)
     # robot.stop()

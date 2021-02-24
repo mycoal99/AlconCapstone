@@ -28,24 +28,52 @@ class FaceDetector(object):
         """
         try:
             for box, prob, ld in zip(boxes, probs, landmarks):
-                if debugging:
+                isPatient = True
+                if len(self.states) != 0:
+                    for state in self.states:
+                        # print("2")
+                        if (((math.isclose(state[0][0], ld[0][0], abs_tol=50)) and (math.isclose(state[0][1], ld[0][1], abs_tol=50)))  or ((math.isclose(state[1][0], ld[1][0], abs_tol=50)) and (math.isclose(state[1][1], ld[1][1], abs_tol=50)))) and (x == state[4]):
+                            currStateActivity = state[3]
+                    for state in self.states:
+                        if state[3] > currStateActivity:
+                            isPatient = False
+                if debugging and isPatient:
                     # Draw rectangle on frame
                     cv2.rectangle(frame,
                                 (box[0], box[1]),
                                 (box[2], box[3]),
-                                (0, 0, 255),
+                                (0, 255, 0),
+                                thickness=2)
+
+                    # Show probabil ity
+                    # cv2.putText(frame, str(
+                    #     prob), (box[2], box[3]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+                    # Draw landmarks
+                    cv2.circle(frame, tuple(ld[0]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[1]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[2]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[3]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[4]), 5, (0, 255, 0), -1)
+
+                if debugging and not isPatient:
+                    # Draw rectangle on frame
+                    cv2.rectangle(frame,
+                                (box[0], box[1]),
+                                (box[2], box[3]),
+                                (0, 255, 0),
                                 thickness=2)
 
                     # Show probability
                     cv2.putText(frame, str(
-                        prob), (box[2], box[3]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                        prob), (box[2], box[3]), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
                     # Draw landmarks
-                    cv2.circle(frame, tuple(ld[0]), 5, (0, 0, 255), -1)
-                    cv2.circle(frame, tuple(ld[1]), 5, (0, 0, 255), -1)
-                    cv2.circle(frame, tuple(ld[2]), 5, (0, 0, 255), -1)
-                    cv2.circle(frame, tuple(ld[3]), 5, (0, 0, 255), -1)
-                    cv2.circle(frame, tuple(ld[4]), 5, (0, 0, 255), -1)
+                    cv2.circle(frame, tuple(ld[0]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[1]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[2]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[3]), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(ld[4]), 5, (0, 255, 0), -1)
 
                 # Save Frame State
                 updated = False
@@ -106,16 +134,18 @@ class FaceDetector(object):
 
         return frame
 
-    def run(self, videoSource=0, debugging=True):
+    def run(self, cap=0, debugging=True):
         """
             Run the FaceDetector and draw landmarks and boxes around detected faces
         """
-        cap = cv2.VideoCapture(videoSource)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        # cap = cv2.VideoCapture(videoSource)
+        # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         i = 0
+        picCapture = 0
         while True:
             ret, frame = cap.read()
+            # print(ret)
             for x in range(4): 
                 if x == 0:
                     pass
@@ -138,7 +168,10 @@ class FaceDetector(object):
             # Show the frame
             if debugging:
                 frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
-                cv2.imshow('Face Detection', frame)
+                # name = "./"+ str(picCapture) + ".png"
+                # cv2.imwrite(name, frame)
+                # picCapture += 1
+                cv2.imshow('Patient Detection', frame)
             else:
                 if i > 100:
                     break
@@ -147,8 +180,8 @@ class FaceDetector(object):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        cap.release()
-        cv2.destroyAllWindows()
+        # cap.release()
+        # cv2.destroyAllWindows()
 
     # Usage: fcd.start(videoSource (default videoSources["native"] which is internal camera),
     # debugging (default to False which means no display boxes))
@@ -156,14 +189,15 @@ class FaceDetector(object):
     # videoSource = videoSources["iv"] for Michael's ReolinkWebCam
     # videoSource = videoSources["sj"] for Brent's ReolinkWebCam
     # debugging = False (default) for no video display, runs for 100 frames, True for video and box display.
-    def start(self, videoSource=videoSources["surgical"], debugging=False):
-        self.run(videoSource, debugging)
+    def start(self, cap=0, debugging=False):
+        self.run(cap, debugging)
         maxActive = self.states[0]
         for state in self.states:
             if state[3] > maxActive[3]:
                 if state[2] > 0.98:
                     maxActive = state
         return maxActive
-# mtcnn = MTCNN()
-# fd = FaceDetector(mtcnn)           
-# print(fd.start(debugging=True))
+if __name__ == "__main__":
+    mtcnn = MTCNN()
+    fd = FaceDetector(mtcnn)           
+    fd.start(cv2.VideoCapture(0), debugging=True)

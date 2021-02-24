@@ -20,6 +20,7 @@ from kivymd.toast.kivytoast.kivytoast import toast
 from iris_detection import moveRobotToEye
 from cv2 import cv2
 import _thread
+from threading import Thread
 
 class Gui(Widget):
     camIsShown = BooleanProperty(True)
@@ -32,29 +33,34 @@ class Gui(Widget):
     surgery_label = StringProperty()
     eye_label = StringProperty()
     robot = None
+    roboCam = cv2.VideoCapture(1)
+    roboCam.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    roboCam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     def start(self, button):
         # Lines up camera with patient.
         self.robot = Robot()
-        _thread.start_new_thread(self.robot.initial())
+        roboThread = Thread()
+        _thread.start_new_thread(self.robot.initial,())
         # self.robot.initial()
         if self.ids['leftEyeToggle'].state == "down":   
-            _thread.start_new_thread(moveRobotToPatient(self.robot, True, getPatient("overhead"), 1))
+            _thread.start_new_thread(moveRobotToPatient,(self.robot, True, getPatient(self.roboCam), 1))
         elif self.ids['rightEyeToggle'].state == "down":
-            _thread.start_new_thread(moveRobotToPatient(self.robot, False, getPatient("overhead"), 1))
+            _thread.start_new_thread(moveRobotToPatient,(self.robot, False, getPatient(self.roboCam), 1))
         else:
             toast(text="Please select eye")
             print("Please select eye")
     def focus(self, button):
         # Focuses surgical camera on patient's eye.
         camera = self.ids['surgery_video']
-        ret, template = camera.capture.read()
-        # if self.ids['leftEyeToggle'].state == "down":   
-        #     get_patient_by_eye_template("left", template)
-        # elif self.ids['rightEyeToggle'].state == "down":
-        #     get_patient_by_eye_template("right", template)
-        # else:
-        #     toast("Please select Eye")
-        #     print("Please select eye")
+        ret, templateImage = camera.capture.read()
+        if self.ids['leftEyeToggle'].state == "down":   
+            patientData = get_patient_by_eye_template("left", verify(templateImage)[0])
+        elif self.ids['rightEyeToggle'].state == "down":
+            patientData = get_patient_by_eye_template("right", verify(templateImage)[0])
+        else:
+            toast("Please select Eye")
+            print("Please select eye")
+        self.populatePatientData(patientData)
         self.camIsShown = False
         camera.capture.release()
         moveRobotToEye(self.robot, 0)
@@ -69,6 +75,12 @@ class Gui(Widget):
         self.robot.initial()
         camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
+        
+    def populatePatientData(self, patientData):
+        self.name_label = "Name:  {} {}".format(patientData["firstname"], patientData["lastname"])
+        self.dob_label = "Date of Birth: {}".format(patientData["DOB"])
+        self.surgery_label = "Surgery Type:  {}".format(patientData["surgery"])
+        # self.eye_label = "Surgery Eye:  {}".format("whichEye")
 
 
 class GuiApp(MDApp):
@@ -98,6 +110,8 @@ class KivyCamera(Image):
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
         self.capture = cv2.VideoCapture(0)
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         self.clock = Clock.schedule_interval(self.update, 1.0 / 60)
 
     def update(self, dt):
