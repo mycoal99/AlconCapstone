@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import math
 import string
+import time
 import sys
 import time
 from scipy import signal
@@ -18,8 +19,8 @@ from robot_controller import Robot
 def center(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
     EYE_CENTERED = False
     #thesholds for when the eye is centered enough
-    WIDTH_THRESHOLD = 20
-    HEIGHT_THESHOLD = 15
+    WIDTH_THRESHOLD = 15
+    HEIGHT_THESHOLD = 10
 
     #begin live stream
     #set surgical camera as videoSource
@@ -58,8 +59,6 @@ def center(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
                 if(sum(average_x) != 0 and sum(average_y) != 0):
                     sum_x = sum(average_x)/index
                     sum_y = sum(average_y)/index
-                    # print("sum_x: ", sum_x)
-                    # print("sum_y: ", sum_y)
                     if(sum_x > int(width/2) - WIDTH_THRESHOLD and sum_x < int(width/2) + WIDTH_THRESHOLD 
                         and sum_y < int(height/2) + HEIGHT_THESHOLD 
                         and sum_y > int(height/2) - HEIGHT_THESHOLD):
@@ -93,15 +92,14 @@ def center(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
         print("error Center Function", OSError)
 
 
-def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .3):
+def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
     SET_UP_COMPLETE = False
 
  #size of iris at 200mm away
-    FINAL_IRIS_SIZE = 150 #TODO
+    FINAL_IRIS_SIZE = 200 #TODO
 
     #begin live stream
     #set surgical camera as videoSource
-
     ret, img = cap.read()
     height, width, channels = img.shape
     counter = 0
@@ -117,10 +115,6 @@ def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .3):
             gray_blurred = cv2.GaussianBlur(gray, (11, 11), 0)
             gray_blurred = cv2.medianBlur(gray_blurred, 3)
 
-            path = "C:\\Users\\Alcon\\Desktop\\eyeimages\\"
-            photoName = path + "Zoom_In_" + str(photoNum) + ".png"
-            print(photoName)
-
             #Iris detection
             #play around with param1 and param2 based on logetic zoom in
             detected_circles = cv2.HoughCircles(gray_blurred,  
@@ -130,37 +124,23 @@ def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .3):
             # find the iris and move closer to eye
             if detected_circles is not None: 
                 detected_circles = np.uint16(np.around(detected_circles)) 
-                print(detected_circles)
+                pts = detected_circles[0, :]
+                pt = pts[0]
+                a, b, r = pt[0], pt[1], pt[2] 
+                print("iris radius: ", r)
             
-                for pt in detected_circles[0, :]:
-                    if(pt[2] > 0):
-                        a, b, r = pt[0], pt[1], pt[2] 
-                        print("iris radius: ", r)
-                        print("(a,b): ", "(", a, ",", b, ")")
-                        cv2.circle(img, (a, b), r, (0, 255, 0), 2)
-                        cv2.circle(img, (a, b), 1, (0, 0, 255), 3)
+                if(r < FINAL_IRIS_SIZE and counter < 5):
+                    print("move down")
+                    robot.down()
+                    time.sleep(sleep_time)
+                    robot.stop()
+                    counter += 1
 
-                        #counter is used as a safety precaution
-                        if(r < FINAL_IRIS_SIZE and counter < 5):
-                            print("move down")
-                            robot.down()
-                            time.sleep(sleep_time)
-                            robot.stop()
-                            counter += 1
-                            cv2.imwrite(photoName, img)
-                            photoNum += 1
+                if (r >= FINAL_IRIS_SIZE or counter >= 5):
+                    print("setup complete")
+                    SET_UP_COMPLETE = True
+                    break
 
-                        if (r >= FINAL_IRIS_SIZE or counter >= 5):
-                            print("setup complete")
-                            cv2.imwrite("Lastmoment.png", img)
-                            cv2.imwrite(photoName, img)
-                            SET_UP_COMPLETE = True
-                            break
-
-            #save image
-            # cv2.imwrite(photoName, img)
-            # photoNum += 1
-            # cv2.imshow("camera", img)
             cv2.waitKey(10)
 
     except OSError:
@@ -169,14 +149,12 @@ def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .3):
 
 
 def moveRobotToEye(robot=0, videoSource=0):
-    cap = cv2.VideoCapture(videoSource) 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap = cv2.VideoCapture(videoSource)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
     center(robot, cap, .2)
     zoomInEye(robot, cap)
     center(robot, cap, .15)
-    cap.release()
-    cv2.destroyAllWindows()
 
 '''
     Assumptions:

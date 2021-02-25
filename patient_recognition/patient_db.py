@@ -330,6 +330,7 @@ def get_patient_by_left_eye_template(left_eye_template):
     return json_format(patient_list)
 
 def get_patient_by_right_eye_template(right_eye_template):
+    print("EYETEMP type", type(right_eye_template))
     '''
     Returns a list of patients by template of the right eye.
         Input:

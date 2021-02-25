@@ -6,7 +6,7 @@ from kivy.uix.widget import Widget
 from kivy.vector import Vector
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
-from robot_controller import Robot, moveRobotToPatient, getPatient
+from robot_controller import Robot, moveRobotToPatient, getPatient, moveRobot
 from kivymd.app import MDApp
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.label import MDLabel
@@ -34,56 +34,76 @@ class Gui(Widget):
     surgery_label = StringProperty()
     eye_label = StringProperty()
     robot = None
+    overHeadCam = None
 
     def start(self, button):
         # Lines up camera with patient.
         self.robot = Robot()
         _thread.start_new_thread(self.robot.initial,())
-        #self.robot.initial()
+
+        start = time.time()
+
         if self.ids['leftEyeToggle'].state == "down":   
-            _thread.start_new_thread(moveRobotToPatient,(self.robot, True, getPatient("overhead"), 1))
-            #moveRobotToPatient(self.robot, True, getPatient("overhead"), 1)
+            _thread.start_new_thread(moveRobot,(self.robot, True, [[]], 1))
         elif self.ids['rightEyeToggle'].state == "down":
-            _thread.start_new_thread(moveRobotToPatient,(self.robot, False, getPatient("overhead"), 1))
-            #moveRobotToPatient(self.robot, False, getPatient("overhead"), 1)
+            # moveRobot(self.robot, False, getPatient(self.overHeadCam), 1)
+            _thread.start_new_thread(moveRobot,(self.robot, False, [[]], 1))
         else:
             toast(text="Please select eye")
             print("Please select eye")
+        
+        print("start_time: ", str(time.time() - start))
             
+    #NEEDS TO BE CHANGED
     def focus(self, button):
         camera = self.ids['surgery_video']
-        # Focuses surgical camera on patient's eye.
+        # Focuses surgical camera on patient's eFye.
         self.robot = Robot()
         self.camIsShown = False
         camera.capture.release()
-        # cv2.destroyAllWindows()
 
         moveRobotToEye(self.robot, 0)
-        toast("after moveRobotToEye 0")
         camera.capture = cv2.VideoCapture(0)
+        camera.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        camera.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         self.camIsShown = True
-        time.sleep(3)
-        ret, templateImage = camera.capture.read()
-        patientData = {}
-        cv2.imwrite("eye_template.png", templateImage)
-        print("SHAPE >>>>>>>>>>>>>>>>>>", templateImage.shape)
-        if self.ids['leftEyeToggle'].state == "down":   
-            patientData = get_patient_by_eye_template("left", verify(templateImage))
-        elif self.ids['rightEyeToggle'].state == "down":
-            patientData = get_patient_by_eye_template("right",  verify(templateImage))
-        else:
-            toast("Please select Eye")
-            print("Please select eye")
-        print("PATIENT DATA >>>>>>>", patientData)
-        self.populatePatientData(patientData)
-        toast(">>>> populate patient")
+
+        # NOT_DETECTED = True
+        # while(NOT_DETECTED):
+        #     ret, templateImage = camera.capture.read()
+        #     patientData = {}
+        #     cv2.imwrite("eye_template.png", templateImage)
+        #     # print("SHAPE >>>>>>>>>>>>>>>>>>", templateImage.shape)
+
+        #     eye_selected = self.ids['leftEyeToggle'].state == "down" or self.ids['rightEyeToggle'].state == "down"
+
+        #     if self.ids['leftEyeToggle'].state == "down":   
+        #         patientData = get_patient_by_eye_template("left", verify(templateImage))
+        #     elif self.ids['rightEyeToggle'].state == "down":
+        #         patientData = get_patient_by_eye_template("right",  verify(templateImage))
+        #     else:
+        #         toast("Please select Eye")
+        #         print("Please select eye")
+        #         cv2.waitKey(10)
+
+        #     #if eye not selected, wait until eye is selected
+        #     print("PATIENT DATA >>>>>>>", patientData)
+        #     if(type(patientData) is None or patientData == {}):
+        #         print("NULLLLLLLL")
+        #     else:
+        #         NOT_DETECTED = False
+        #         self.populatePatientData(patientData)
+        #     toast(">>>> populate patient")
         camera.clock.cancel()
         Clock.schedule_interval(camera.update2, 1.0/60)
 
+
     def reset(self, button):
         # Resets Robot back to initial position  
-        self.robot.initial()
         camera = self.ids['surgery_video']
+        camera.capture.release()
+        self.robot = Robot()
+        self.robot.initial()
         camera.capture = cv2.VideoCapture(0)
         self.camIsShown = True
         
@@ -123,7 +143,7 @@ class KivyCamera(Image):
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         self.clock = Clock.schedule_interval(self.update, 1.0 / 60)
-
+        print("KivyCam set")
     def update(self, dt):
         ret, frame = self.capture.read()
         if ret:
