@@ -350,7 +350,7 @@ def get_patient_by_eye_template(eye_string, eye_template):
     if eye_string == "left":
         return get_patient_by_left_eye_template(eye_template)
     elif eye_string == "right":
-        return ient_by_right_eye_template(eye_template)
+        return get_patient_by_right_eye_template(eye_template)
     else:
         return get_patient_by_left_eye_template(eye_template)
     

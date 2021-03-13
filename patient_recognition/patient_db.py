@@ -42,7 +42,8 @@ if not cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='
                     DOB text,
                     left_eye_template text,
                     right_eye_template text,
-                    surgery text
+                    surgery text,
+                    target_eye text
                 )""")
 #   if not curr.execute("SELECT count(*) FROM sqlite_master WHERE type='index' and name='ix_patients_lastname_firstname').fetchall():
 #     curr.execute("""
@@ -57,23 +58,26 @@ connect.close()
 ###                 SUPPORTED FUNCTIONS
 ### ------------------------------------------------------------------------------------
 
-def add_patient(firstname:str, lastname:str, DOB:str, left_eye_template, right_eye_template, surgery:str):
+def add_patient(firstname:str, lastname:str, DOB:str, left_eye_template, right_eye_template, surgery:str, target_eye:str):
     '''
         Input:
             * patient_id (str): the id of the patient, which is automatically incremented by the database.
             firstname (str): patient's firstname
             lastname (str): patient's lastname
             DOB (str): patient's date of birth
-            left_eye_template (.mat): the template generated/extracted from the image of patient's eye
+            left_eye_template (str): the template generated/extracted from the image of patient's eye
+            right_eye_template (str): the template generated/extracted from the image of patient's eye
+            surgery (str): what kind of surgery
+            target_eye (str): which eye is the surgery is on
         Output:
             void
 
     '''
     try:
-        patient = Patient(None, firstname, lastname, DOB, left_eye_template, right_eye_template, surgery)
+        patient = Patient(None, firstname, lastname, DOB, left_eye_template, right_eye_template, surgery, target_eye)
         insert_new_patient(patient)
     except:
-        print("[EXCEPTION] The order of fields are: firstname, lastname, date of birth, left_eye_template, right_eye_template, surgery")
+        print("[EXCEPTION] The order of fields are: firstname, lastname, date of birth, left_eye_template, right_eye_template, surgery, target_eye")
 def insert_new_patient(patient:Patient):
     '''
         Input:
@@ -85,8 +89,8 @@ def insert_new_patient(patient:Patient):
     connect = sqlite3.connect(DATABASE_NAME)
     cur = connect.cursor()
     with connect:
-        cur.execute("INSERT INTO patients VALUES (:id, :firstname, :lastname, :DOB, :left_eye_template, :right_eye_template, :surgery)", 
-        {'id': patient.patient_id, 'firstname':patient.firstname, 'lastname':patient.lastname, 'DOB':patient.DOB, 'left_eye_template':patient.left_eye_template, 'right_eye_template':patient.right_eye_template, 'surgery':patient.surgery})
+        cur.execute("INSERT INTO patients VALUES (:id, :firstname, :lastname, :DOB, :left_eye_template, :right_eye_template, :surgery, :target_eye)", 
+        {'id': patient.patient_id, 'firstname':patient.firstname, 'lastname':patient.lastname, 'DOB':patient.DOB, 'left_eye_template':patient.left_eye_template, 'right_eye_template':patient.right_eye_template, 'surgery':patient.surgery, 'target_eye':patient.target_eye})
     connect.close()
 
 def remove_patient(id:int):
@@ -296,6 +300,26 @@ def get_patient_by_lastname(lastname:str):
     connect.close()
     return json_format(patient_list)
 
+
+def get_patient_by_fullname(fullname:str):
+    '''
+    Returns a list of patients by fullname (firstname + <space> + lastname).
+        Input:
+            fullname (str): patient's fullname
+        Output:
+            jsonfile: list of patients found in json format
+    '''
+    connect = sqlite3.connect(DATABASE_NAME)
+    cur = connect.cursor()
+    patient_list = []
+    names =  fullname.split(" ")
+    lastname = names[-1]
+    firstname = " ".join(names[0:len(names)-1])
+    with connect:
+        patient_list = cur.execute("SELECT * FROM patients WHERE lastname=:lastname AND firstname=:firstname", {'lastname':lastname, 'firstname':firstname}).fetchall()
+    connect.close()
+    return json_format(patient_list)
+
 def get_patient_by_DOB(DOB:str):
     '''
     Returns a list of patients by date of birth.
@@ -330,7 +354,7 @@ def get_patient_by_left_eye_template(left_eye_template):
     return json_format(patient_list)
 
 def get_patient_by_right_eye_template(right_eye_template):
-    print("EYETEMP type", type(right_eye_template))
+    print("EYETEMP type", type(right_eye_template), right_eye_template)
     '''
     Returns a list of patients by template of the right eye.
         Input:
@@ -345,13 +369,13 @@ def get_patient_by_right_eye_template(right_eye_template):
     with connect:
         patient_list = cur.execute("SELECT * FROM patients WHERE right_eye_template=:right_eye_template", {'right_eye_template':right_eye_template}).fetchall()
     connect.close()
-    return patient_list
+    return json_format(patient_list)
 
 def get_patient_by_eye_template(eye_string, eye_template):
     if eye_string == "left":
-        get_patient_by_left_eye_template(eye_template)
+        return get_patient_by_left_eye_template(eye_template)
     elif eye_string == "right":
-        get_patient_by_right_eye_template(eye_template)
+        return get_patient_by_right_eye_template(eye_template)
 
 def get_patient_by_surgery(surgery:str):
     '''
@@ -439,7 +463,8 @@ def json_format(patients):
         for field in range(len(DATABASE_MODEL)):
             entry[DATABASE_MODEL[field]] = patient[field]
         jsonfile.append(entry)
-    return json.dumps(jsonfile, indent=4)
+    # return json.dumps(jsonfile, indent=4)
+    return jsonfile
     
 ### ------------------------------------------------------------------------------------
 ###                 CONSOLE

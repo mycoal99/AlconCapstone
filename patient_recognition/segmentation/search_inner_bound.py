@@ -54,7 +54,7 @@ def search_inner_bound(img):
 
     # Blur
     sm = 3 		# Size of the blurring mask
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>", hspdr, hspdr.shape)
+    # print(">>>>>>>>>>>>>>>>>>>>>>>>>", hspdr, hspdr.shape)
     hspdrs = signal.fftconvolve(hspdr, np.ones([sm,sm,sm]), mode="same")
 
     indmax = np.argmax(hspdrs.ravel())

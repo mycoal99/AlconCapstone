@@ -17,34 +17,44 @@ def calc2DDistance(x1,y1,x2,y2):
 
 def moveRobot(robot=0, left=False, patient=[[]], videoSource=1, sleep_time=2.5):
     cap = cv2.VideoCapture(videoSource)
+    patient = getPatient(cap)
+    cap.release()
+    start_time = time.time()
+    cap = cv2.VideoCapture(videoSource)
+    robot.initial()
+    print("cap_time", time.time() - start_time)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    print("cam set")
-    patient = getPatient(cap)
+    print("set_time", time.time() - start_time)
+    # print("cam set")
+    ret, frame = cap.read()
+    # print(frame.shape)
     moveRobotToPatient(robot, left, patient, cap)
 
-def moveRobotToPatient(robot=0, left=False, patient=[[]], cap=0, sleep_time=2.5):
+def moveRobotToPatient(robot=0, left=False, patient=[[]], cap=cv2.VideoCapture(1), sleep_time=2.5):
         # Assign coordinates of QRCode to Robot object\
         print("moveRobotToPatient")
-        start = time.time()
+        # ret, frame = cap.read()
+        # print(frame.shape)
+        # start = time.time()
         robot.updateCoords(cap)
 
         # Get coordinates of patient's correct eye
         # potentially the wrong eye
         
         if (left):
-            eyeX = patient[0][0]
-            eyeY = patient[0][1]
+            eyeX = (patient[1][0] / 640) * 1920
+            eyeY = (patient[1][1] / 480) * 1080
         else:
-            eyeX = patient[1][0]
-            eyeY = patient[1][1]
+            eyeX = (patient[0][0] / 640) * 1920
+            eyeY = (patient[0][1] / 480) * 1080
 
         # Calculate the distance between the robot and the eye
         # Instantiate the var that will update as the robot is moving that will determine if the stop command is sent.
         distanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
         newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
 
-        final_distance_to_eye = 5
+        final_distance_to_eye = 10
 
         robot.right()
         time.sleep(.7)
@@ -54,9 +64,10 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], cap=0, sleep_time=2.5)
         newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)
 
         while newDistanceToEye <= distanceToEye:
-            print("newDistanceToEye:", newDistanceToEye, "\n")
+            # print(">>> distanceToEye:", distanceToEye)
+            # print("newDistanceToEye:", newDistanceToEye, "\n")
             calc_sleep_time = newDistanceToEye/60
-            print("sleep_time:", calc_sleep_time, "\n")
+            # print("sleep_time:", calc_sleep_time, "\n")
             robot.right()
             time.sleep(calc_sleep_time)
             robot.stop()
@@ -76,9 +87,9 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], cap=0, sleep_time=2.5)
 
         while newDistanceToEye <= distanceToEye:
             # print("forward while loop 1")
-            print("newDistanceToEye:", newDistanceToEye, "\n")
+            # print("newDistanceToEye:", newDistanceToEye, "\n")
             calc_sleep_time = newDistanceToEye/60
-            print("sleep_time:", calc_sleep_time, "\n")
+            # print("sleep_time:", calc_sleep_time, "\n")
             robot.forward()
             time.sleep(calc_sleep_time)
             robot.stop()
@@ -98,9 +109,9 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], cap=0, sleep_time=2.5)
         newDistanceToEye = calc2DDistance(robot.getX(),robot.getY(),eyeX,eyeY)        
 
         while newDistanceToEye <= distanceToEye:
-            print("newDistanceToEye:", newDistanceToEye, "\n")
+            # print("newDistanceToEye:", newDistanceToEye, "\n")
             calc_sleep_time = newDistanceToEye/60
-            print("sleep_time:", calc_sleep_time, "\n")
+            # print("sleep_time:", calc_sleep_time, "\n")
             robot.left()
             time.sleep(calc_sleep_time)
             robot.stop()
@@ -121,9 +132,9 @@ def moveRobotToPatient(robot=0, left=False, patient=[[]], cap=0, sleep_time=2.5)
 
         while newDistanceToEye <= distanceToEye:
             # print("backward while loop 1")
-            print("newDistanceToEye:", newDistanceToEye, "\n")
+            # print("newDistanceToEye:", newDistanceToEye, "\n")
             calc_sleep_time = newDistanceToEye/60
-            print("sleep_time:", calc_sleep_time, "\n")
+            # print("sleep_time:", calc_sleep_time, "\n")
             robot.backward()
             time.sleep(calc_sleep_time)
             robot.stop()
@@ -145,12 +156,14 @@ def getPatient(cap):
     fd = FaceDetector(mtcnn)
 
     ret, frame = cap.read()
+    # print(frame.shape)
 
     maxImageHeight = frame.shape[0]
     maxImageWidth = frame.shape[1]
 
     patient = fd.start(cap, False)
     orientation = patient[4]
+
     if orientation == 0:
         pass
     elif orientation == 1:
@@ -160,6 +173,7 @@ def getPatient(cap):
         patient[0][0] = tempy1
         patient[1][1] = maxImageHeight - patient[1][0]
         patient[1][0] = tempy2
+
     elif orientation == 2:
         patient[0][0] = maxImageWidth - patient[0][0]
         patient[0][1] = maxImageHeight - patient[0][1]
@@ -190,9 +204,9 @@ class Robot(object):
         #self.__controller.sendRobotCommand(self.__controller.commands["initial"])
 
     def updateCoords(self, cap):
-        start = time.time()
+        # start = time.time()
         print(cap)
-        print("updateCoords")
+        # print("updateCoords")
         qrCode = []
 
         FOUND_QR = False
@@ -202,6 +216,9 @@ class Robot(object):
             blurFrame = cv2.GaussianBlur(frame, (21,21), 5)
             sharpFrame = cv2.addWeighted(frame, 1.5, blurFrame, -0.5, 0)
 
+            # cv2.imshow('frame', frame[::-1])
+            # cv2.imwrite("lastmomement.png", frame)
+
             x = int(self.getX())
             y = int(self.getY())
 
@@ -209,25 +226,20 @@ class Robot(object):
             if(len(qrCode) > 0):
                 if(len(qrCode[0].polygon) == 4):
                     FOUND_QR = True
-
+        
         (topLeft,topRight,bottomRight,bottomLeft) = qrCode[0].polygon
 
-        while(True):
-            ret, frame = cap.read()
+        # centerX = (topRight.x + bottomRight.x) / 2
+        # centerY = (topRight.y + bottomRight.y) / 2
+        # centerX = (topLeft.x + bottomRight.x + topRight.x + bottomLeft.x)/4
+        # centerY = (topLeft.y + bottomRight.y + topRight.y + bottomLeft.y)/4
+        centerX = (topLeft.x + topRight.x)/2
+        centerY = (topLeft.y + topRight.y)/2
 
-            # Our operations on the frame come here
-            cv2.circle(frame, (int((topRight.x + bottomRight.x) / 2), int((topRight.y + bottomRight.y) / 2)), 4, (255, 255, 255), -1)
-            # Display the resulting frame
-            cv2.imshow('frame',frame[::-1])
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        centerX = (topRight.x + bottomRight.x) / 2
-        centerY = (topRight.y + bottomRight.y) / 2
         self.setX(centerX)
         self.setY(centerY)
 
-        print("updateCoords_time:", str(time.time() - start))
+        # print("updateCoords_time:", str(time.time() - start))
 
     def setX(self, x):
         self.__xCoordinate = x
@@ -283,6 +295,6 @@ class Robot(object):
 #     robot.initial()
 #     print("Robot Initialized")
 #     time.sleep(3)
-#     patient = getPatient("overhead")
-#     print("Patient Identified")
-#     moveRobotToPatient(robot=robot, left=False, patient=patient, videoSource=1)
+#     # patient = getPatient("overhead")
+#     # print("Patient Identified")
+#     moveRobot(robot=robot, left=False, patient=[[]], videoSource=1)

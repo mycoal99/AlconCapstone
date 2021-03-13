@@ -8,7 +8,8 @@
         "DOB", 
         "left_eye_template", 
         "right_eye_template", 
-        "surgery"
+        "surgery",
+        "target_eye"
     ],
     "eye-template-folder-name":"diagnostics/"
 }

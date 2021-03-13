@@ -18,9 +18,10 @@ from robot_controller import Robot
 
 def center(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
     EYE_CENTERED = False
+    print("center")
     #thesholds for when the eye is centered enough
-    WIDTH_THRESHOLD = 15
-    HEIGHT_THESHOLD = 10
+    WIDTH_THRESHOLD = 20
+    HEIGHT_THESHOLD = 15
 
     #begin live stream
     #set surgical camera as videoSource
@@ -50,7 +51,8 @@ def center(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
                 index = 0
                 for cnt in contours:
                     (a, b, w, h) = cv2.boundingRect(cnt)
-                    cv2.circle(img, (a + int(w/2), b + int(h/2)), int((h)/3), (255, 0, 255), 2)
+                    # cv2.circle(img, (a + int(w/2), b + int(h/2)), int((h)/3), (255, 0, 255), 2)
+                    # print("x", a + int(w/2), "y", b + int(h/2))
                     if(h/3 > 0):
                         average_x[index] = a + int(w/2)
                         average_y[index] = b + int(h/2)
@@ -93,6 +95,7 @@ def center(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
 
 
 def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
+    print("zoom")
     SET_UP_COMPLETE = False
 
  #size of iris at 200mm away
@@ -127,7 +130,7 @@ def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
                 pts = detected_circles[0, :]
                 pt = pts[0]
                 a, b, r = pt[0], pt[1], pt[2] 
-                print("iris radius: ", r)
+                # print("iris radius: ", r)
             
                 if(r < FINAL_IRIS_SIZE and counter < 5):
                     print("move down")
@@ -149,18 +152,27 @@ def zoomInEye(robot=0, cap=cv2.VideoCapture(0), sleep_time = .5):
 
 
 def moveRobotToEye(robot=0, videoSource=0):
+    start_time = time.time()
     cap = cv2.VideoCapture(videoSource)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+    print("cap_time", time.time() - start_time)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    print("set_time", time.time() - start_time)
+    print("cam set")
+
     center(robot, cap, .2)
     zoomInEye(robot, cap)
     center(robot, cap, .15)
+    robot.down()
+    time.sleep(.5)
+    robot.stop()
+
+    cap.release()
 
 '''
     Assumptions:
         - two eyes is in frame
 '''
-
 
 # if __name__ == "__main__":
 #     # #potentially use patient detention again and zoomInEye in from there

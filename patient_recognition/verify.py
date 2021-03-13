@@ -96,7 +96,7 @@ def verify(img):
     minWaveLength = 18
     mult = 1
     sigmaOnf = 0.5
-    use_multiprocess = True
+    use_multiprocess = False
 
     circleiris, circlepupil, imwithnoise = segment(img, eyelashes_thres, use_multiprocess)
     polar_array, noise_array = normalizeiris(imwithnoise, circleiris[1], circleiris[0], circleiris[2],

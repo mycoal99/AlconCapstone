@@ -1,6 +1,6 @@
 class Patient:
 
-    def __init__(self, patient_id, firstname, lastname, DOB, left_eye_template, right_eye_template, surgery):
+    def __init__(self, patient_id, firstname, lastname, DOB, left_eye_template, right_eye_template, surgery, target_eye):
         self.patient_id = patient_id
         self.firstname = firstname
         self.lastname = lastname
@@ -8,6 +8,7 @@ class Patient:
         self.left_eye_template = left_eye_template
         self.right_eye_template = right_eye_template
         self.surgery = surgery
+        self.target_eye = target_eye
 
     # @property
     # def patient_id(self):
