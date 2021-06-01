@@ -54,13 +54,13 @@
 ### Motivation and Background
 
 <p> 
-Streamlining eye surgery through automation means that doctors will be able tobring improved vision to more patients and restore one of the most important humansenses. With the prediction that the world’s population will increase by about one-third and along with it, the demand for cataract surgery, optometrists will struggle to keepup with the demand. At the relatively low rate at which optometrists are trained, thedemand will outpace the current solution. Automation of the NGENUITY 3DVisualization system will drastically cut down the amount of time medical professionalswill need to spend on preparing the patient for surgery and in turn allow optometrists tohelp more patients.
+Streamlining eye surgery through automation means that doctors will be able to bring improved vision to more patients and restore one of the most important human senses. With the prediction that the world’s population will increase by about one-third and along with it, the demand for cataract surgery, optometrists will struggle to keep up with the demand. At the relatively low rate at which optometrists are trained, the demand will outpace the current solution. Automation of the NGENUITY 3D Visualization system will drastically cut down the amount of time medical professionals will need to spend on preparing the patient for surgery and in turn allow optometrists to help more patients.
 </p>
 
 ### Existing Solutions
 
 <p>
-The increase in cataract surgery demand is already causing great concern in themedical community and there are solutions currently being used to alleviate theproblem. Beyond changes in administrative workflow, using lasers to make incisionsincreases consistency and accuracy while decreasing the amount of time to make theincisions, however even with advances in the actual surgical operation technology,systems using lasers will still benefit from decreasing the actual setup time throughautomation.
+The increase in cataract surgery demand is already causing great concern in the medical community and there are solutions currently being used to alleviate the problem. Beyond changes in administrative workflow, using lasers to make incisions increases consistency and accuracy while decreasing the amount of time to make the incisions, however even with advances in the actual surgical operation technology,systems using lasers will still benefit from decreasing the actual setup time through automation.
 </p>
 
 ## Built With
